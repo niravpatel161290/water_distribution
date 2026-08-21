@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMC Jal Setu — Water Distribution Monitoring, Ahmedabad Smart City</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A1420; --panel:#0F1E2E; --panel2:#13253A; --line:#1E3450; --line-soft:#17293E;
+  --text:#DCE7F2; --text-dim:#8AA0B8; --text-mute:#5A7089;
+  --teal:#2DD4BF; --teal-dim:#0F6E56; --sky:#38BDF8;
+  --green:#22C55E; --green-bg:#0F2A1C; --amber:#F5A524; --amber-bg:#2E2308; --red:#F14747; --red-bg:#331014; --purple:#A78BFA; --purple-bg:#221A3D;
+  --mono: 'IBM Plex Mono', monospace; --sans:'IBM Plex Sans', sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{background:var(--bg); color:var(--text); font-family:var(--sans); height:100%;}
+body{display:flex; min-height:100vh; font-size:14px;}
+::-webkit-scrollbar{width:8px; height:8px;}
+::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+/* ===== Sidebar ===== */
+#sidebar{width:220px; min-width:220px; background:var(--panel); border-right:1px solid var(--line); display:flex; flex-direction:column; position:sticky; top:0; height:100vh;}
+.brand{padding:20px 18px 16px; border-bottom:1px solid var(--line);}
+.brand-title{font-size:15px; font-weight:600; letter-spacing:0.3px;}
+.brand-sub{font-size:11px; color:var(--text-dim); margin-top:3px; font-family:var(--mono);}
+nav{flex:1; padding:12px 10px; display:flex; flex-direction:column; gap:2px;}
+.navbtn{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:6px; color:var(--text-dim); cursor:pointer; font-size:13px; border:1px solid transparent; transition:background .12s;}
+.navbtn:hover{background:var(--panel2); color:var(--text);}
+.navbtn.active{background:var(--teal-dim); color:#D5FBF3; border-color:#146152;}
+.navbtn .dot{width:6px; height:6px; border-radius:50%; background:var(--text-mute); flex-shrink:0;}
+.navbtn.active .dot{background:var(--teal);}
+.sidebar-foot{padding:14px 18px; border-top:1px solid var(--line); font-size:10.5px; color:var(--text-mute); font-family:var(--mono); line-height:1.6;}
+
+/* ===== Main ===== */
+#main{flex:1; min-width:0; display:flex; flex-direction:column;}
+#topbar{display:flex; align-items:center; justify-content:space-between; padding:14px 26px; border-bottom:1px solid var(--line); background:var(--panel); position:sticky; top:0; z-index:5;}
+#topbar h1{font-size:16px; font-weight:600;}
+#topbar .sub{font-size:11.5px; color:var(--text-dim); margin-top:2px;}
+.topbar-right{display:flex; align-items:center; gap:18px; font-family:var(--mono); font-size:12px; color:var(--text-dim);}
+.clock{color:var(--teal);}
+.pill{display:flex; align-items:center; gap:6px; background:var(--panel2); border:1px solid var(--line); padding:5px 10px; border-radius:20px;}
+.pill.alertpill{border-color:#4a1f24; color:#FF9C9C;}
+.blink{width:7px; height:7px; border-radius:50%; background:var(--red); animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1} 50%{opacity:.25}}
+
+#view{padding:22px 26px 60px; overflow-y:auto;}
+
+/* ===== Common blocks ===== */
+.kpirow{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:22px;}
+.kpi{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:14px 16px;}
+.kpi .lbl{font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px;}
+.kpi .val{font-family:var(--mono); font-size:24px; font-weight:600; margin-top:6px; color:var(--text);}
+.kpi .val.teal{color:var(--teal);} .kpi .val.amber{color:var(--amber);} .kpi .val.red{color:var(--red);} .kpi .val.green{color:var(--green);}
+.kpi .unit{font-size:12px; color:var(--text-mute); font-weight:400; margin-left:3px;}
+.kpi .delta{font-size:11px; margin-top:5px; color:var(--text-mute);}
+
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:18px 20px; margin-bottom:20px;}
+.panel h2{font-size:13.5px; font-weight:600; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between;}
+.panel h2 .cnt{font-family:var(--mono); font-size:11px; color:var(--text-dim); font-weight:400;}
+.grid2{display:grid; grid-template-columns:1.4fr 1fr; gap:20px;}
+@media (max-width:1100px){.grid2{grid-template-columns:1fr;}}
+
+table{width:100%; border-collapse:collapse; font-size:12.5px;}
+th{text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--text-mute); border-bottom:1px solid var(--line); padding:8px 10px; font-weight:500; white-space:nowrap;}
+td{padding:9px 10px; border-bottom:1px solid var(--line-soft); font-family:var(--mono); white-space:nowrap; color:var(--text);}
+tr:hover td{background:var(--panel2);}
+td.name{font-family:var(--sans); color:var(--text);}
+
+.badge{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-family:var(--sans); padding:3px 9px; border-radius:20px; font-weight:500; white-space:nowrap;}
+.b-normal{background:var(--green-bg); color:#7BE8A0;}
+.b-low{background:var(--amber-bg); color:#FFCB6B;}
+.b-critical{background:var(--red-bg); color:#FF8A8A;}
+.b-leak{background:var(--red-bg); color:#FF8A8A;}
+.b-block{background:#331d08; color:#FFB870;}
+.b-sensor{background:var(--purple-bg); color:#C9B8FF;}
+.badge .bdot{width:6px; height:6px; border-radius:50%; background:currentColor;}
+
+select, input[type=text]{background:var(--panel2); border:1px solid var(--line); color:var(--text); padding:7px 10px; border-radius:6px; font-family:var(--sans); font-size:12.5px; outline:none;}
+select:focus, input:focus{border-color:var(--teal);}
+.toolbar{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; align-items:center;}
+.btn{background:var(--panel2); border:1px solid var(--line); color:var(--text); padding:8px 14px; border-radius:6px; font-size:12.5px; cursor:pointer; font-family:var(--sans); display:inline-flex; align-items:center; gap:6px;}
+.btn:hover{border-color:var(--teal); color:var(--teal);}
+.btn.primary{background:var(--teal-dim); border-color:#146152; color:#D5FBF3;}
+
+.tankcard{background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:14px; display:flex; gap:14px;}
+.gaugewrap{width:46px; height:100px; background:#08121C; border:1px solid var(--line); border-radius:5px; position:relative; overflow:hidden; flex-shrink:0;}
+.gaugefill{position:absolute; bottom:0; left:0; right:0; transition:height .3s;}
+.gaugelabel{position:absolute; top:4px; left:0; right:0; text-align:center; font-family:var(--mono); font-size:10px; color:var(--text-dim); z-index:2;}
+.tankinfo{flex:1; min-width:0;}
+.tankinfo .tname{font-size:13px; font-weight:600; margin-bottom:2px;}
+.tankinfo .ttype{font-size:10.5px; color:var(--text-mute); font-family:var(--mono); margin-bottom:8px;}
+.statrow{display:grid; grid-template-columns:1fr 1fr; gap:4px 14px; font-size:11px; color:var(--text-dim); font-family:var(--mono);}
+.statrow b{color:var(--text); font-weight:500;}
+.tanksgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px;}
+
+.zonecard{background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:16px;}
+.barmini{height:8px; background:#08121C; border-radius:4px; overflow:hidden; margin:8px 0;}
+.barmini > div{height:100%;}
+
+.legend{display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color:var(--text-dim); margin-top:10px;}
+.legend span{display:inline-flex; align-items:center; gap:6px;}
+.legend i{width:9px; height:9px; border-radius:50%; display:inline-block;}
+
+.alertrow{display:flex; gap:12px; padding:11px 0; border-bottom:1px solid var(--line-soft); align-items:flex-start;}
+.alertrow:last-child{border-bottom:none;}
+.alertsev{width:8px; height:8px; border-radius:50%; margin-top:5px; flex-shrink:0;}
+.alertbody{flex:1; min-width:0;}
+.alerttitle{font-size:12.5px; font-weight:500;}
+.alertmeta{font-size:11px; color:var(--text-mute); font-family:var(--mono); margin-top:2px;}
+.alertaction{font-size:11px; color:var(--text-dim); margin-top:4px;}
+
+.hint{font-size:11px; color:var(--text-mute); margin-top:10px; line-height:1.6;}
+.sectiontitle{font-size:11px; text-transform:uppercase; letter-spacing:.6px; color:var(--text-mute); margin:22px 0 10px;}
+.sectiontitle:first-child{margin-top:0;}
+.svgwrap{width:100%; overflow-x:auto;}
+
+/* ===== Zone detail drawer (right sidebar) ===== */
+#drawerBackdrop{position:fixed; inset:0; background:rgba(3,8,14,.6); z-index:40; opacity:0; pointer-events:none; transition:opacity .2s;}
+#drawerBackdrop.open{opacity:1; pointer-events:auto;}
+#zoneDrawer{position:fixed; top:0; right:0; height:100vh; width:440px; max-width:94vw; background:var(--panel); border-left:1px solid var(--line); z-index:50; transform:translateX(100%); transition:transform .25s cubic-bezier(.2,.8,.3,1); overflow-y:auto; box-shadow:-8px 0 24px rgba(0,0,0,.35);}
+#zoneDrawer.open{transform:translateX(0);}
+.drawer-head{position:sticky; top:0; background:var(--panel); border-bottom:1px solid var(--line); padding:18px 22px; display:flex; justify-content:space-between; align-items:flex-start; z-index:2;}
+.drawer-close{cursor:pointer; color:var(--text-dim); font-size:20px; line-height:1; padding:4px 8px; border-radius:6px;}
+.drawer-close:hover{background:var(--panel2); color:var(--text);}
+.drawer-body{padding:18px 22px 40px;}
+.drawer-badge{display:inline-block; font-size:10px; font-family:var(--mono); padding:3px 8px; border-radius:4px; margin-top:6px; margin-right:6px;}
+.mini-gauge{width:8px; height:34px; background:#08121C; border:1px solid var(--line); border-radius:3px; position:relative; overflow:hidden; flex-shrink:0;}
+.mini-gauge > div{position:absolute; bottom:0; left:0; right:0;}
+.drawer-tankrow{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line-soft);}
+.drawer-tankrow .tinfo{flex:1; min-width:0; font-size:12px;}
+.drawer-tankrow .tinfo b{font-size:12.5px; font-weight:600;}
+.drawer-tankrow .tstats{font-family:var(--mono); font-size:10.5px; color:var(--text-dim); margin-top:2px;}
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="brand">
+    <div class="brand-title">AMC Jal Setu</div>
+    <div class="brand-sub">Water Distribution SCADA · Demo</div>
+  </div>
+  <nav id="nav"></nav>
+  <div class="sidebar-foot">Ahmedabad Municipal Corporation<br>Smart City Water Cell<br>Simulated data · demo build</div>
+</div>
+
+<div id="main">
+  <div id="topbar">
+    <div>
+      <h1 id="viewtitle">Overview</h1>
+      <div class="sub" id="viewsub">City-wide water production, storage and distribution status</div>
+    </div>
+    <div class="topbar-right">
+      <div class="pill alertpill" id="alertpill"><span class="blink"></span><span id="alertcount">0 active alerts</span></div>
+      <div class="pill"><span>Ahmedabad</span></div>
+      <div class="pill clock" id="clock">--:--:--</div>
+    </div>
+  </div>
+  <div id="view"></div>
+</div>
+
+<div id="drawerBackdrop" onclick="closeDrawer()"></div>
+<div id="zoneDrawer" role="dialog" aria-label="Zone detail"></div>
+
+<script>
+/* =========================================================
+   DATA MODEL — synthetic demo data for Ahmedabad Municipal Corporation
+   ========================================================= */
+
+const ZONES = [
+  {id:'CZ', name:'Central Zone', areas:['Khadia','Raikhad','Kalupur','Dariapur'], population:380000},
+  {id:'NZ', name:'North Zone', areas:['Naranpura','Sabarmati','Chandkheda (N)','Motera'], population:520000},
+  {id:'EZ', name:'East Zone', areas:['Vastral','Nikol','Odhav','Amraiwadi'], population:610000},
+  {id:'WZ', name:'West Zone', areas:['Vastrapur','Bodakdev','Thaltej','Navrangpura'], population:470000},
+  {id:'SZ', name:'South Zone', areas:['Maninagar','Isanpur','Vatva','Ghodasar'], population:550000},
+  {id:'NWZ', name:'North-West Zone', areas:['Ranip','Chandlodia','Gota','Chandkheda (W)'], population:430000},
+  {id:'SWZ', name:'South-West Zone', areas:['Bopal','South Bopal','Sarkhej','Vejalpur'], population:490000},
+];
+
+const WTPS = ['Jaspur WTP','Raska WTP','Kotarpur WTP'];
+
+const TANKS = [
+  {id:'CZ-ESR-01', name:'Khadia ESR', type:'Elevated (ESR)', zone:'CZ', cap:4500, level:78, inflow:3800, outflow:3650, turbidity:0.8, ph:7.1, chlorine:0.32, pump:'Running', status:'Normal'},
+  {id:'CZ-GSR-01', name:'Raikhad GSR', type:'Ground (GSR)', zone:'CZ', cap:9000, level:62, inflow:7200, outflow:7050, turbidity:1.1, ph:7.0, chlorine:0.28, pump:'Running', status:'Normal'},
+  {id:'NZ-ESR-01', name:'Naranpura ESR', type:'Elevated (ESR)', zone:'NZ', cap:6000, level:45, inflow:5100, outflow:5400, turbidity:0.9, ph:7.2, chlorine:0.30, pump:'Running', status:'Low'},
+  {id:'NZ-GSR-01', name:'Sabarmati GSR', type:'Ground (GSR)', zone:'NZ', cap:12000, level:81, inflow:9600, outflow:9300, turbidity:0.7, ph:7.3, chlorine:0.34, pump:'Running', status:'Normal'},
+  {id:'EZ-ESR-01', name:'Vastral ESR', type:'Elevated (ESR)', zone:'EZ', cap:5000, level:28, inflow:4200, outflow:4900, turbidity:1.4, ph:6.9, chlorine:0.22, pump:'Running', status:'Critical'},
+  {id:'EZ-GSR-01', name:'Nikol GSR', type:'Ground (GSR)', zone:'EZ', cap:11000, level:55, inflow:8800, outflow:8700, turbidity:1.0, ph:7.1, chlorine:0.29, pump:'Running', status:'Normal'},
+  {id:'WZ-ESR-01', name:'Vastrapur ESR', type:'Elevated (ESR)', zone:'WZ', cap:5200, level:88, inflow:4600, outflow:4300, turbidity:0.6, ph:7.2, chlorine:0.35, pump:'Running', status:'Normal'},
+  {id:'WZ-GSR-01', name:'Thaltej GSR', type:'Ground (GSR)', zone:'WZ', cap:10500, level:71, inflow:8200, outflow:8000, turbidity:0.7, ph:7.1, chlorine:0.31, pump:'Running', status:'Normal'},
+  {id:'SZ-ESR-01', name:'Maninagar ESR', type:'Elevated (ESR)', zone:'SZ', cap:4800, level:39, inflow:4000, outflow:4500, turbidity:1.6, ph:6.8, chlorine:0.19, pump:'Running', status:'Low'},
+  {id:'SZ-GSR-01', name:'Vatva GSR', type:'Ground (GSR)', zone:'SZ', cap:9800, level:66, inflow:7600, outflow:7400, turbidity:1.2, ph:7.0, chlorine:0.27, pump:'Running', status:'Normal'},
+  {id:'NWZ-ESR-01', name:'Ranip ESR', type:'Elevated (ESR)', zone:'NWZ', cap:4600, level:92, inflow:3900, outflow:3600, turbidity:0.5, ph:7.3, chlorine:0.36, pump:'Running', status:'Normal'},
+  {id:'NWZ-GSR-01', name:'Chandkheda GSR', type:'Ground (GSR)', zone:'NWZ', cap:8800, level:58, inflow:6900, outflow:6800, turbidity:0.9, ph:7.1, chlorine:0.30, pump:'Running', status:'Normal'},
+  {id:'SWZ-ESR-01', name:'Bopal ESR', type:'Elevated (ESR)', zone:'SWZ', cap:5400, level:34, inflow:4700, outflow:5200, turbidity:1.3, ph:6.9, chlorine:0.21, pump:'Running', status:'Low'},
+  {id:'SWZ-GSR-01', name:'Sarkhej GSR', type:'Ground (GSR)', zone:'SWZ', cap:9200, level:69, inflow:7100, outflow:6950, turbidity:0.8, ph:7.2, chlorine:0.32, pump:'Running', status:'Normal'},
+];
+
+const LINES = [
+  {id:'L-CZ-01', zone:'CZ', type:'Trunk Main', from:'Kotarpur WTP', to:'Khadia ESR', dia:900, material:'DI', length:6.2, input:8200, output:8050, pin:32, pout:28, vel:1.2, age:12, status:'Normal', method:'—'},
+  {id:'L-CZ-02', zone:'CZ', type:'Distribution Main', from:'Khadia ESR', to:'Raikhad', dia:450, material:'CI', length:3.1, input:3800, output:3120, pin:22, pout:9, vel:0.6, age:38, status:'Leakage Suspected', method:'Pressure drop + flow mismatch'},
+  {id:'L-CZ-03', zone:'CZ', type:'Distribution Main', from:'Raikhad GSR', to:'Kalupur / Dariapur', dia:300, material:'PVC', length:2.4, input:2600, output:2540, pin:18, pout:16, vel:0.9, age:9, status:'Normal', method:'—'},
+  {id:'L-NZ-01', zone:'NZ', type:'Trunk Main', from:'Raska WTP', to:'Sabarmati GSR', dia:780, material:'DI', length:10.2, input:9600, output:9450, pin:33, pout:29, vel:1.3, age:11, status:'Normal', method:'—'},
+  {id:'L-NZ-02', zone:'NZ', type:'Distribution Main', from:'Naranpura ESR', to:'Naranpura', dia:400, material:'PVC', length:3.0, input:5100, output:5000, pin:23, pout:20, vel:1.1, age:6, status:'Normal', method:'—'},
+  {id:'L-NZ-03', zone:'NZ', type:'Distribution Main', from:'Sabarmati GSR', to:'Chandkheda (N)', dia:350, material:'HDPE', length:2.8, input:3900, output:null, pin:22, pout:null, vel:null, age:4, status:'Sensor Offline', method:'Flow-meter comms lost'},
+  {id:'L-EZ-01', zone:'EZ', type:'Trunk Main', from:'Jaspur WTP', to:'Nikol GSR', dia:800, material:'DI', length:8.4, input:9500, output:9350, pin:30, pout:27, vel:1.3, age:10, status:'Normal', method:'—'},
+  {id:'L-EZ-02', zone:'EZ', type:'Distribution Main', from:'Vastral ESR', to:'Vastral / Amraiwadi', dia:400, material:'HDPE', length:3.6, input:4200, output:3300, pin:20, pout:7, vel:0.5, age:6, status:'Leakage Suspected', method:'Flow mismatch (NRW)'},
+  {id:'L-EZ-03', zone:'EZ', type:'Distribution Main', from:'Nikol GSR', to:'Odhav', dia:350, material:'CI', length:2.9, input:3600, output:3550, pin:19, pout:17, vel:0.8, age:22, status:'Normal', method:'—'},
+  {id:'L-WZ-01', zone:'WZ', type:'Trunk Main', from:'Raska WTP', to:'Vastrapur ESR', dia:850, material:'DI', length:9.1, input:8600, output:8480, pin:34, pout:30, vel:1.4, age:8, status:'Normal', method:'—'},
+  {id:'L-WZ-02', zone:'WZ', type:'Distribution Main', from:'Vastrapur ESR', to:'Bodakdev / Navrangpura', dia:400, material:'PVC', length:3.3, input:4600, output:4550, pin:24, pout:21, vel:1.0, age:5, status:'Normal', method:'—'},
+  {id:'L-WZ-03', zone:'WZ', type:'Distribution Main', from:'Thaltej GSR', to:'Thaltej', dia:380, material:'HDPE', length:2.7, input:4200, output:1800, pin:38, pout:6, vel:0.3, age:4, status:'Blockage Suspected', method:'Velocity drop + upstream pressure build-up'},
+  {id:'L-SZ-01', zone:'SZ', type:'Trunk Main', from:'Kotarpur WTP', to:'Vatva GSR', dia:820, material:'DI', length:7.6, input:7600, output:7480, pin:29, pout:26, vel:1.3, age:14, status:'Normal', method:'—'},
+  {id:'L-SZ-02', zone:'SZ', type:'Distribution Main', from:'Maninagar ESR', to:'Maninagar / Isanpur', dia:420, material:'CI', length:3.8, input:4000, output:3250, pin:21, pout:8, vel:0.6, age:35, status:'Leakage Suspected', method:'Pressure drop + flow mismatch'},
+  {id:'L-SZ-03', zone:'SZ', type:'Distribution Main', from:'Vatva GSR', to:'Vatva / Ghodasar', dia:360, material:'PVC', length:2.5, input:3600, output:3540, pin:18, pout:16, vel:0.9, age:7, status:'Normal', method:'—'},
+  {id:'L-NWZ-01', zone:'NWZ', type:'Trunk Main', from:'Kotarpur WTP', to:'Ranip ESR', dia:700, material:'DI', length:8.9, input:3900, output:3840, pin:27, pout:24, vel:1.0, age:9, status:'Normal', method:'—'},
+  {id:'L-NWZ-02', zone:'NWZ', type:'Distribution Main', from:'Ranip ESR', to:'Ranip / Gota', dia:380, material:'PVC', length:3.2, input:3900, output:3820, pin:21, pout:19, vel:0.9, age:5, status:'Normal', method:'—'},
+  {id:'L-NWZ-03', zone:'NWZ', type:'Distribution Main', from:'Chandkheda GSR', to:'Chandlodia', dia:340, material:'CI', length:2.6, input:3400, output:2850, pin:19, pout:9, vel:0.6, age:30, status:'Leakage Suspected', method:'Acoustic sensor + flow mismatch'},
+  {id:'L-SWZ-01', zone:'SWZ', type:'Trunk Main', from:'Raska WTP', to:'Sarkhej GSR', dia:760, material:'DI', length:11.4, input:7100, output:6980, pin:31, pout:27, vel:1.2, age:10, status:'Normal', method:'—'},
+  {id:'L-SWZ-02', zone:'SWZ', type:'Distribution Main', from:'Bopal ESR', to:'Bopal / South Bopal', dia:400, material:'HDPE', length:4.1, input:4700, output:4600, pin:20, pout:17, vel:1.0, age:4, status:'Normal', method:'—'},
+  {id:'L-SWZ-03', zone:'SWZ', type:'Distribution Main', from:'Sarkhej GSR', to:'Vejalpur', dia:360, material:'PVC', length:2.9, input:3400, output:3340, pin:19, pout:17, vel:0.9, age:6, status:'Normal', method:'—'},
+];
+
+/* Zone positions for the compact Overview schematic — 3 rows, all 7 zones, roomy viewBox so nothing clips. */
+const ZONEPOS_OVERVIEW = {
+  NWZ:{x:150, y:100}, NZ:{x:430, y:80},
+  WZ:{x:150, y:250}, CZ:{x:420, y:250}, EZ:{x:660, y:230},
+  SWZ:{x:190, y:400}, SZ:{x:480, y:410},
+};
+/* Zone + WTP positions for the realistic Network map — approximate east/west bank layout around the
+   Sabarmati river, based on real relative locations (old city + Central east bank near the river,
+   West Zone across the river to the west, WTPs sited on the riverbank). Not surveyed GIS. */
+const RIVER_PATH = 'M 430 20 C 410 140, 460 200, 420 300 C 380 400, 440 470, 410 600';
+const WTP_POS = {
+  'Kotarpur WTP': {x:500, y:60},
+  'Raska WTP':    {x:270, y:560},
+  'Jaspur WTP':   {x:640, y:560},
+};
+const ZONEPOS_MAP = {
+  NWZ:{x:170, y:150}, NZ:{x:590, y:120},
+  WZ:{x:150, y:330}, CZ:{x:490, y:300}, EZ:{x:690, y:350},
+  SWZ:{x:190, y:510}, SZ:{x:540, y:530},
+};
+
+/* =========================================================
+   DERIVED / COMPUTED METRICS
+   ========================================================= */
+function zoneOf(id){ return ZONES.find(z=>z.id===id); }
+function tanksIn(zid){ return TANKS.filter(t=>t.zone===zid); }
+function linesIn(zid){ return LINES.filter(l=>l.zone===zid); }
+function fmt(n, d=0){ return n===null||n===undefined ? '—' : Number(n).toLocaleString('en-IN', {maximumFractionDigits:d, minimumFractionDigits:d}); }
+
+const totalCapacity = TANKS.reduce((s,t)=>s+t.cap,0);
+const totalInflow = TANKS.reduce((s,t)=>s+t.inflow,0);
+const totalOutflow = TANKS.reduce((s,t)=>s+t.outflow,0);
+const totalProductionKLD = LINES.filter(l=>l.type==='Trunk Main').reduce((s,l)=>s+l.input,0);
+const totalPopulation = ZONES.reduce((s,z)=>s+z.population,0);
+const avgLevel = Math.round(TANKS.reduce((s,t)=>s+t.level,0)/TANKS.length);
+const validLines = LINES.filter(l=>l.output!==null);
+const nrwLines = validLines.filter(l=>l.type==='Distribution Main');
+const totalNRWInput = nrwLines.reduce((s,l)=>s+l.input,0);
+const totalNRWOutput = nrwLines.reduce((s,l)=>s+l.output,0);
+const overallNRWpct = ((totalNRWInput-totalNRWOutput)/totalNRWInput*100);
+const perCapitaLPCD = Math.round(totalOutflow*1000/totalPopulation);
+const tanksBelow30 = TANKS.filter(t=>t.level<30).length;
+const tanksLow = TANKS.filter(t=>t.status==='Low').length;
+
+/* Day-over-day comparison — % change in effective supply vs yesterday, per zone.
+   Negative = today lower than yesterday (zones with a newly-flagged leak/blockage dropped more). */
+const YESTERDAY_CHANGE_PCT = { CZ:-4.2, NZ:1.1, EZ:-9.8, WZ:-6.5, SZ:-8.9, NWZ:-7.1, SWZ:0.8 };
+function zoneSupplyKLD(zid){ return tanksIn(zid).reduce((s,t)=>s+t.outflow,0); }
+function zoneLossKLD(zid){ return linesIn(zid).filter(l=>l.type==='Distribution Main' && l.output!==null).reduce((s,l)=>s+(l.input-l.output),0); }
+function zoneDeliveredKLD(zid){ return Math.max(0, zoneSupplyKLD(zid)-zoneLossKLD(zid)); }
+function zoneLPCD(zid){ const z=zoneOf(zid); return Math.round(zoneDeliveredKLD(zid)*1000/z.population); }
+function zoneYesterdaySupplyKLD(zid){ return zoneSupplyKLD(zid)/(1+(YESTERDAY_CHANGE_PCT[zid]||0)/100); }
+function zoneYesterdayDeliveredKLD(zid){ return zoneDeliveredKLD(zid)/(1+(YESTERDAY_CHANGE_PCT[zid]||0)/100); }
+
+const totalDistributionTodayKLD = totalOutflow;
+const totalDistributionYesterdayKLD = ZONES.reduce((s,z)=>s+zoneYesterdaySupplyKLD(z.id),0);
+const distributionChangePct = ((totalDistributionTodayKLD-totalDistributionYesterdayKLD)/totalDistributionYesterdayKLD*100);
+const TOTAL_LOSS_KLD = totalNRWInput-totalNRWOutput;
+const TOTAL_LOSS_YESTERDAY_KLD = TOTAL_LOSS_KLD*0.64; // yesterday's loss, before today's newly-flagged leaks/blockage
+
+const ZONE_STATS = ZONES.map(z=>({
+  id:z.id, name:z.name,
+  deliveredMLD: zoneDeliveredKLD(z.id)/1000,
+  yesterdayDeliveredMLD: zoneYesterdayDeliveredKLD(z.id)/1000,
+  lpcd: zoneLPCD(z.id),
+}));
+const maxSupplyZone = ZONE_STATS.reduce((a,b)=>b.deliveredMLD>a.deliveredMLD?b:a);
+const minSupplyZone = ZONE_STATS.reduce((a,b)=>b.deliveredMLD<a.deliveredMLD?b:a);
+const maxLPCDZone = ZONE_STATS.reduce((a,b)=>b.lpcd>a.lpcd?b:a);
+const minLPCDZone = ZONE_STATS.reduce((a,b)=>b.lpcd<a.lpcd?b:a);
+
+/* Build unified alert list from tanks + lines */
+function buildAlerts(){
+  const alerts = [];
+  LINES.forEach(l=>{
+    if(l.status==='Leakage Suspected'){
+      const lossKld = l.output===null? null : (l.input-l.output);
+      alerts.push({sev:'critical', type:'Leakage', line:l.id, zone:l.zone, location:l.to, param:`NRW ${((l.input-l.output)/l.input*100).toFixed(1)}%, pressure drop ${l.pin}→${l.pout} mwc`, loss:lossKld, method:l.method, action:'Dispatch leak-detection crew; isolate DMA sub-zone valves and re-survey.'});
+    } else if(l.status==='Blockage Suspected'){
+      alerts.push({sev:'critical', type:'Blockage', line:l.id, zone:l.zone, location:l.to, param:`Velocity ${l.vel} m/s (design ~1.0), upstream pressure ${l.pin} mwc`, loss:null, method:l.method, action:'Schedule mechanical cleaning / pigging; verify valve position at chamber.'});
+    } else if(l.status==='Sensor Offline'){
+      alerts.push({sev:'warning', type:'Sensor fault', line:l.id, zone:l.zone, location:l.to, param:'Flow meter not reporting output', loss:null, method:l.method, action:'Field team to inspect RTU / meter communication link.'});
+    }
+  });
+  TANKS.forEach(t=>{
+    if(t.status==='Critical'){
+      alerts.push({sev:'critical', type:'Low tank level', line:t.id, zone:t.zone, location:t.name, param:`Level ${t.level}% — outflow exceeding inflow`, loss:null, method:'SCADA level deviation', action:'Increase trunk main supply or reduce outflow scheduling for this ESR.'});
+    } else if(t.status==='Low'){
+      alerts.push({sev:'warning', type:'Low tank level', line:t.id, zone:t.zone, location:t.name, param:`Level ${t.level}% — trending down`, loss:null, method:'SCADA level deviation', action:'Monitor next fill cycle; adjust pumping schedule if trend continues.'});
+    }
+  });
+  return alerts;
+}
+const ALERTS = buildAlerts();
+
+function statusBadge(status){
+  const map = {
+    'Normal':'b-normal', 'Running':'b-normal', 'Low':'b-low', 'Critical':'b-critical',
+    'Leakage Suspected':'b-leak', 'Blockage Suspected':'b-block', 'Sensor Offline':'b-sensor'
+  };
+  const cls = map[status] || 'b-normal';
+  return `<span class="badge ${cls}"><span class="bdot"></span>${status}</span>`;
+}
+function levelColor(pct){
+  if(pct<30) return 'var(--red)';
+  if(pct<50) return 'var(--amber)';
+  return 'var(--teal)';
+}
+function sevColor(sev){ return sev==='critical' ? 'var(--red)' : sev==='warning' ? 'var(--amber)' : 'var(--teal)'; }
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+const VIEWS = [
+  {id:'overview', label:'Overview', sub:'City-wide water production, storage and distribution status'},
+  {id:'tanks', label:'Tank levels', sub:'ESR / GSR storage — capacity, level, inflow-outflow in KLD'},
+  {id:'lines', label:'Distribution network', sub:'Pipeline parameters — pressure, flow, velocity, material, age'},
+  {id:'leakage', label:'Leakage & blockage', sub:'Anomaly detection from SCADA and flow-balance parameters'},
+  {id:'areas', label:'Area-wise supply', sub:'Zone-level demand vs supply, per-capita, and service levels'},
+  {id:'map', label:'Network map', sub:'Schematic GIS view of zones, tanks and trunk mains'},
+  {id:'reports', label:'Reports', sub:'Daily operations and zone-wise report export'},
+];
+let currentView = 'overview';
+/* Filter + selection state — kept in JS (not read from DOM) so dropdowns and map selection survive re-renders. */
+const tankFilter = {zone:'', status:''};
+const lineFilter = {zone:'', status:'', type:''};
+let selectedZoneId = null;
+
+function renderNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML = VIEWS.map(v=>`<div class="navbtn ${v.id===currentView?'active':''}" onclick="goTo('${v.id}')"><span class="dot"></span>${v.label}</div>`).join('');
+}
+function goTo(id){
+  currentView = id;
+  const v = VIEWS.find(x=>x.id===id);
+  document.getElementById('viewtitle').textContent = v.label;
+  document.getElementById('viewsub').textContent = v.sub;
+  renderNav();
+  renderView();
+  document.getElementById('view').scrollTop = 0;
+}
+
+/* =========================================================
+   ZONE DETAIL DRAWER — right-hand sidebar, opened by clicking any zone marker
+   ========================================================= */
+function openZoneDrawer(zid){
+  selectedZoneId = zid;
+  document.getElementById('zoneDrawer').innerHTML = zoneDrawerContent(zid);
+  document.getElementById('zoneDrawer').classList.add('open');
+  document.getElementById('drawerBackdrop').classList.add('open');
+  refreshMapHighlight();
+}
+function openWtpDrawer(name, feedLines, totalFeed){
+  const rows = feedLines.map(l=>{
+    const z = zoneOf(l.zone);
+    return `<div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line-soft); font-size:12.5px; cursor:pointer;" onclick="openZoneDrawer('${l.zone}')">
+      <span>${z.name} <span style="color:var(--text-mute); font-family:var(--mono); font-size:10.5px;">${l.id}</span></span>
+      <span style="font-family:var(--mono);">${fmt(l.input)} KLD</span>
+    </div>`;
+  }).join('');
+  document.getElementById('zoneDrawer').innerHTML = `
+    <div class="drawer-head">
+      <div><div style="font-size:16px; font-weight:600;">${name}</div><div style="font-size:11.5px; color:var(--text-dim); margin-top:2px;">Water treatment plant</div></div>
+      <div class="drawer-close" onclick="closeDrawer()">&times;</div>
+    </div>
+    <div class="drawer-body">
+      <div class="kpirow" style="grid-template-columns:1fr 1fr;">
+        <div class="kpi"><div class="lbl">Total output</div><div class="val teal">${fmt(totalFeed/1000,1)}<span class="unit">MLD</span></div></div>
+        <div class="kpi"><div class="lbl">Trunk mains fed</div><div class="val">${feedLines.length}</div></div>
+      </div>
+      <div class="sectiontitle">Zones supplied</div>
+      ${rows}
+    </div>`;
+  document.getElementById('zoneDrawer').classList.add('open');
+  document.getElementById('drawerBackdrop').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('zoneDrawer').classList.remove('open');
+  document.getElementById('drawerBackdrop').classList.remove('open');
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawer(); });
+function refreshMapHighlight(){
+  if(currentView==='map'){
+    const svgwrap = document.querySelector('#view .svgwrap');
+    if(svgwrap) svgwrap.innerHTML = bigMapSVG();
+  }
+}
+function zoneDrawerContent(zid){
+  const z = zoneOf(zid);
+  const zt = tanksIn(zid);
+  const zl = linesIn(zid);
+  const za = ALERTS.filter(a=>a.zone===zid);
+  const deliveredMLD = zoneDeliveredKLD(zid)/1000;
+  const yesterdayMLD = zoneYesterdayDeliveredKLD(zid);
+  const changePct = YESTERDAY_CHANGE_PCT[zid]||0;
+  const lpcd = zoneLPCD(zid);
+  const lossKLD = zoneLossKLD(zid);
+  const demandMLD = z.population*135/1e6;
+
+  const badges = [];
+  if(zid===maxSupplyZone.id) badges.push(`<span class="drawer-badge" style="background:var(--green-bg); color:#7BE8A0;">Most supplied area</span>`);
+  if(zid===minSupplyZone.id) badges.push(`<span class="drawer-badge" style="background:var(--amber-bg); color:#FFCB6B;">Least supplied area</span>`);
+  if(zid===maxLPCDZone.id) badges.push(`<span class="drawer-badge" style="background:var(--green-bg); color:#7BE8A0;">Best per-person supply</span>`);
+  if(zid===minLPCDZone.id) badges.push(`<span class="drawer-badge" style="background:var(--red-bg); color:#FF8A8A;">Worst per-person supply</span>`);
+
+  return `
+    <div class="drawer-head">
+      <div>
+        <div style="font-size:16px; font-weight:600;">${z.name}</div>
+        <div style="font-size:11.5px; color:var(--text-dim); margin-top:2px;">${z.areas.join(', ')}</div>
+        <div>${badges.join('')}</div>
+      </div>
+      <div class="drawer-close" onclick="closeDrawer()">&times;</div>
+    </div>
+    <div class="drawer-body">
+      <div class="kpirow" style="grid-template-columns:1fr 1fr;">
+        <div class="kpi"><div class="lbl">Population</div><div class="val">${fmt(z.population)}</div></div>
+        <div class="kpi"><div class="lbl">Demand (135 LPCD)</div><div class="val">${fmt(demandMLD,1)}<span class="unit">MLD</span></div></div>
+        <div class="kpi"><div class="lbl">Delivered today</div><div class="val teal">${fmt(deliveredMLD,1)}<span class="unit">MLD</span></div><div class="delta" style="color:${changePct>=0?'var(--green)':'var(--red)'}">${changePct>=0?'▲':'▼'} ${fmt(Math.abs(changePct),1)}% vs yesterday (${fmt(yesterdayMLD,1)} MLD)</div></div>
+        <div class="kpi"><div class="lbl">Per-capita supply</div><div class="val ${lpcd<100?'red':lpcd<135?'amber':'green'}">${lpcd}<span class="unit">LPCD</span></div></div>
+        <div class="kpi"><div class="lbl">Water loss (this zone)</div><div class="val red">${fmt(lossKLD)}<span class="unit">KLD</span></div></div>
+        <div class="kpi"><div class="lbl">Active alerts</div><div class="val ${za.length?'red':'green'}">${za.length}</div></div>
+      </div>
+
+      <div class="sectiontitle">Tank levels (${zt.length})</div>
+      ${zt.map(t=>`
+        <div class="drawer-tankrow">
+          <div class="mini-gauge"><div style="height:${t.level}%; background:${levelColor(t.level)};"></div></div>
+          <div class="tinfo">
+            <div style="display:flex; justify-content:space-between;"><b>${t.name}</b><span style="font-family:var(--mono); color:${levelColor(t.level)};">${t.level}%</span></div>
+            <div class="tstats">${t.id} · ${t.type} · Cap ${fmt(t.cap)} KL · In ${fmt(t.inflow)} / Out ${fmt(t.outflow)} KLD</div>
+            <div class="tstats">Turbidity ${t.turbidity} NTU · pH ${t.ph} · Cl ${t.chlorine} mg/L · ${statusBadge(t.status)}</div>
+          </div>
+        </div>`).join('')}
+
+      <div class="sectiontitle">Lines in this zone (${zl.length})</div>
+      ${zl.map(l=>{
+        const nrw = l.output===null ? null : ((l.input-l.output)/l.input*100);
+        return `<div style="padding:9px 0; border-bottom:1px solid var(--line-soft); font-size:12px;">
+          <div style="display:flex; justify-content:space-between;"><b style="font-weight:500;">${l.id}</b>${statusBadge(l.status)}</div>
+          <div style="color:var(--text-dim); font-size:11.5px; margin-top:2px;">${l.from} → ${l.to}</div>
+          <div style="font-family:var(--mono); font-size:10.5px; color:var(--text-mute); margin-top:3px;">
+            ${l.dia}mm ${l.material} · In ${fmt(l.input)} / Out ${l.output===null?'—':fmt(l.output)} KLD${nrw!==null?` · NRW ${fmt(nrw,1)}%`:''} · P ${l.pin}${l.pout===null?'':'/'+l.pout} mwc
+          </div>
+        </div>`;
+      }).join('')}
+
+      <div class="sectiontitle">Alerts</div>
+      ${za.length===0 ? '<div class="hint">No active alerts in this zone.</div>' : za.map(a=>`
+        <div class="alertrow">
+          <div class="alertsev" style="background:${sevColor(a.sev)}"></div>
+          <div class="alertbody">
+            <div class="alerttitle">${a.type} — ${a.location}</div>
+            <div class="alertmeta">${a.param}</div>
+            <div class="alertaction">${a.action}</div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function renderView(){
+  const el = document.getElementById('view');
+  if(currentView==='overview') el.innerHTML = viewOverview();
+  else if(currentView==='tanks') el.innerHTML = viewTanks();
+  else if(currentView==='lines') el.innerHTML = viewLines();
+  else if(currentView==='leakage') el.innerHTML = viewLeakage();
+  else if(currentView==='areas') el.innerHTML = viewAreas();
+  else if(currentView==='map') el.innerHTML = viewMap();
+  else if(currentView==='reports') el.innerHTML = viewReports();
+  afterRender();
+}
+
+/* =========================================================
+   VIEW: OVERVIEW
+   ========================================================= */
+function viewOverview(){
+  const critAlerts = ALERTS.filter(a=>a.sev==='critical').length;
+  return `
+  <div class="kpirow">
+    <div class="kpi"><div class="lbl">Total production</div><div class="val teal">${fmt(totalProductionKLD/1000,1)}<span class="unit">MLD</span></div><div class="delta">from ${WTPS.length} WTPs · Jaspur, Raska, Kotarpur</div></div>
+    <div class="kpi"><div class="lbl">Total distribution today</div><div class="val">${fmt(totalDistributionTodayKLD/1000,1)}<span class="unit">MLD</span></div><div class="delta" style="color:${distributionChangePct>=0?'var(--green)':'var(--red)'}">${distributionChangePct>=0?'▲':'▼'} ${fmt(Math.abs(distributionChangePct),1)}% vs yesterday (${fmt(totalDistributionYesterdayKLD/1000,1)} MLD)</div></div>
+    <div class="kpi"><div class="lbl">Total water loss today</div><div class="val red">${fmt(TOTAL_LOSS_KLD)}<span class="unit">KLD</span></div><div class="delta" style="color:var(--red);">▲ ${fmt((TOTAL_LOSS_KLD-TOTAL_LOSS_YESTERDAY_KLD))} KLD vs yesterday (${fmt(TOTAL_LOSS_YESTERDAY_KLD)} KLD)</div></div>
+    <div class="kpi"><div class="lbl">Non-revenue water (NRW)</div><div class="val ${overallNRWpct>10?'amber':'green'}">${fmt(overallNRWpct,1)}<span class="unit">%</span></div><div class="delta">distribution-main flow balance</div></div>
+    <div class="kpi"><div class="lbl">Active alerts</div><div class="val red">${ALERTS.length}</div><div class="delta">${critAlerts} critical · ${ALERTS.length-critAlerts} warning</div></div>
+    <div class="kpi"><div class="lbl">Per-capita supply</div><div class="val">${fmt(perCapitaLPCD)}<span class="unit">LPCD</span></div><div class="delta">against 135 LPCD service norm</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Network schematic <span class="cnt">WTP → zone hub → storage · click a zone</span></h2>
+      <div class="svgwrap">${schematicSVG()}</div>
+      <div class="legend">
+        <span><i style="background:var(--teal)"></i>Normal</span>
+        <span><i style="background:var(--amber)"></i>Low level / warning</span>
+        <span><i style="background:var(--red)"></i>Leak, blockage or critical</span>
+        <span><i style="background:var(--purple)"></i>Sensor offline</span>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Live alert feed <span class="cnt">${ALERTS.length} total</span></h2>
+      ${ALERTS.slice(0,6).map(a=>`
+        <div class="alertrow">
+          <div class="alertsev" style="background:${sevColor(a.sev)}"></div>
+          <div class="alertbody">
+            <div class="alerttitle">${a.type} — ${a.location} <span style="color:var(--text-mute); font-family:var(--mono); font-size:10.5px;">(${a.line})</span></div>
+            <div class="alertmeta">${a.param}</div>
+          </div>
+        </div>`).join('')}
+      <div class="hint">Full list with recommended actions in the Leakage &amp; blockage tab.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Today's supply highlights <span class="cnt">click a card for zone detail</span></h2>
+    <div class="tanksgrid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+      <div class="zonecard" style="cursor:pointer;" onclick="openZoneDrawer('${maxSupplyZone.id}')">
+        <div class="lbl" style="font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px;">Most supplied area</div>
+        <div style="font-size:15px; font-weight:600; margin-top:6px;">${maxSupplyZone.name}</div>
+        <div class="delta" style="margin-top:4px; color:var(--teal); font-family:var(--mono);">${fmt(maxSupplyZone.deliveredMLD,1)} MLD delivered</div>
+      </div>
+      <div class="zonecard" style="cursor:pointer;" onclick="openZoneDrawer('${minSupplyZone.id}')">
+        <div class="lbl" style="font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px;">Least supplied area</div>
+        <div style="font-size:15px; font-weight:600; margin-top:6px;">${minSupplyZone.name}</div>
+        <div class="delta" style="margin-top:4px; color:var(--amber); font-family:var(--mono);">${fmt(minSupplyZone.deliveredMLD,1)} MLD delivered</div>
+      </div>
+      <div class="zonecard" style="cursor:pointer;" onclick="openZoneDrawer('${maxLPCDZone.id}')">
+        <div class="lbl" style="font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px;">Best per-person supply</div>
+        <div style="font-size:15px; font-weight:600; margin-top:6px;">${maxLPCDZone.name}</div>
+        <div class="delta" style="margin-top:4px; color:var(--teal); font-family:var(--mono);">${maxLPCDZone.lpcd} LPCD</div>
+      </div>
+      <div class="zonecard" style="cursor:pointer;" onclick="openZoneDrawer('${minLPCDZone.id}')">
+        <div class="lbl" style="font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px;">Worst per-person supply</div>
+        <div style="font-size:15px; font-weight:600; margin-top:6px;">${minLPCDZone.name}</div>
+        <div class="delta" style="margin-top:4px; color:var(--red); font-family:var(--mono);">${minLPCDZone.lpcd} LPCD</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Zone-wise supply vs demand <span class="cnt">MLD, 135 LPCD service norm</span></h2>
+    ${zoneBarChart()}
+  </div>
+  `;
+}
+
+function schematicSVG(){
+  // WTP nodes feeding zone hubs — abstract flow schematic, all 7 zones in 3 rows so nothing clips
+  const wtpPos = [{x:150,y:30,name:'Jaspur WTP'},{x:430,y:30,name:'Raska WTP'},{x:660,y:30,name:'Kotarpur WTP'}];
+  let s = `<svg viewBox="0 0 760 470" width="100%" style="min-width:640px" role="img" aria-label="Water network schematic from treatment plants to zones">`;
+  const zoneList = Object.keys(ZONEPOS_OVERVIEW);
+  zoneList.forEach(zid=>{
+    const zlines = linesIn(zid).filter(l=>l.type==='Trunk Main');
+    zlines.forEach(l=>{
+      const wtp = wtpPos.find(w=>w.name===l.from) || wtpPos[0];
+      const zp = ZONEPOS_OVERVIEW[zid];
+      const zoneStatus = worstStatusForZone(zid);
+      const col = zoneStatus==='critical' ? '#F14747' : zoneStatus==='warning' ? '#F5A524' : '#2DD4BF';
+      s += `<path d="M${wtp.x} ${wtp.y+16} C ${wtp.x} ${(wtp.y+zp.y)/2}, ${zp.x} ${(wtp.y+zp.y)/2}, ${zp.x} ${zp.y-30}" fill="none" stroke="${col}" stroke-width="1.6" opacity="0.55" stroke-dasharray="4 3"/>`;
+    });
+  });
+  wtpPos.forEach(w=>{
+    s += `<rect x="${w.x-52}" y="${w.y-16}" width="104" height="32" rx="6" fill="#0F1E2E" stroke="#38BDF8" stroke-width="1"/>`;
+    s += `<text x="${w.x}" y="${w.y+4}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#DCE7F2">${w.name}</text>`;
+  });
+  zoneList.forEach(zid=>{
+    const zp = ZONEPOS_OVERVIEW[zid];
+    const z = zoneOf(zid);
+    const zoneStatus = worstStatusForZone(zid);
+    const col = zoneStatus==='critical' ? '#F14747' : zoneStatus==='warning' ? '#F5A524' : '#2DD4BF';
+    const zTanks = tanksIn(zid);
+    const avgLvl = Math.round(zTanks.reduce((s,t)=>s+t.level,0)/zTanks.length);
+    s += `<g style="cursor:pointer" onclick="openZoneDrawer('${zid}')">`;
+    s += `<circle cx="${zp.x}" cy="${zp.y}" r="32" fill="#13253A" stroke="${col}" stroke-width="1.6"/>`;
+    s += `<text x="${zp.x}" y="${zp.y-5}" text-anchor="middle" font-family="IBM Plex Sans" font-weight="600" font-size="11" fill="#DCE7F2">${zid}</text>`;
+    s += `<text x="${zp.x}" y="${zp.y+12}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${col}">${avgLvl}%</text>`;
+    s += `<text x="${zp.x}" y="${zp.y+50}" text-anchor="middle" font-family="IBM Plex Sans" font-size="9.5" fill="#8AA0B8">${z.name}</text>`;
+    s += `</g>`;
+  });
+  s += `</svg>`;
+  return s;
+}
+function selectZoneFromOverview(zid){ openZoneDrawer(zid); }
+function worstStatusForZone(zid){
+  const zl = linesIn(zid);
+  const zt = tanksIn(zid);
+  if(zl.some(l=>['Leakage Suspected','Blockage Suspected'].includes(l.status)) || zt.some(t=>t.status==='Critical')) return 'critical';
+  if(zl.some(l=>l.status==='Sensor Offline') || zt.some(t=>t.status==='Low')) return 'warning';
+  return 'normal';
+}
+
+function zoneBarChart(){
+  const rows = ZONES.map(z=>{
+    const supplyMld = tanksIn(z.id).reduce((s,t)=>s+t.outflow,0)/1000;
+    const demandMld = z.population*135/1e6;
+    return {z, supplyMld, demandMld};
+  });
+  const max = Math.max(...rows.map(r=>Math.max(r.supplyMld,r.demandMld)))*1.15;
+  return `<div style="display:flex; flex-direction:column; gap:14px;">
+    ${rows.map(r=>`
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px;">
+          <span>${r.z.name}</span>
+          <span style="font-family:var(--mono); color:var(--text-dim);">supply ${fmt(r.supplyMld,1)} / demand ${fmt(r.demandMld,1)} MLD</span>
+        </div>
+        <div style="position:relative; height:14px; background:#08121C; border-radius:4px; overflow:hidden;">
+          <div style="position:absolute; left:0; top:0; bottom:0; width:${(r.demandMld/max*100)}%; background:#1E3450;"></div>
+          <div style="position:absolute; left:0; top:0; bottom:0; width:${(r.supplyMld/max*100)}%; background:${r.supplyMld<r.demandMld?'#F5A524':'#2DD4BF'};"></div>
+        </div>
+      </div>`).join('')}
+  </div>
+  <div class="legend"><span><i style="background:#2DD4BF"></i>Supply (meeting demand)</span><span><i style="background:#F5A524"></i>Supply (deficit)</span><span><i style="background:#1E3450"></i>Demand baseline</span></div>`;
+}
+
+/* =========================================================
+   VIEW: TANKS
+   ========================================================= */
+function viewTanks(){
+  return `
+  <div class="kpirow">
+    <div class="kpi"><div class="lbl">Total storage capacity</div><div class="val">${fmt(totalCapacity)}<span class="unit">KL</span></div></div>
+    <div class="kpi"><div class="lbl">Total inflow</div><div class="val teal">${fmt(totalInflow)}<span class="unit">KLD</span></div></div>
+    <div class="kpi"><div class="lbl">Total outflow</div><div class="val">${fmt(totalOutflow)}<span class="unit">KLD</span></div></div>
+    <div class="kpi"><div class="lbl">Tanks below 30%</div><div class="val ${tanksBelow30>0?'red':'green'}">${tanksBelow30}</div></div>
+  </div>
+  <div class="panel">
+    <div class="toolbar">
+      <select onchange="tankFilter.zone=this.value; renderView();">
+        <option value="" ${tankFilter.zone===''?'selected':''}>All zones</option>
+        ${ZONES.map(z=>`<option value="${z.id}" ${tankFilter.zone===z.id?'selected':''}>${z.name}</option>`).join('')}
+      </select>
+      <select onchange="tankFilter.status=this.value; renderView();">
+        <option value="" ${tankFilter.status===''?'selected':''}>All statuses</option>
+        ${['Normal','Low','Critical'].map(s=>`<option ${tankFilter.status===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+      ${(tankFilter.zone||tankFilter.status) ? `<button class="btn" onclick="tankFilter.zone=''; tankFilter.status=''; renderView();">Clear filters</button>` : ''}
+      <span class="hint" style="margin:0;">${tankCardsList().length} of ${TANKS.length} tanks shown</span>
+    </div>
+    <div class="tanksgrid">${tankCards()}</div>
+  </div>`;
+}
+function tankCardsList(){
+  return TANKS.filter(t=> (!tankFilter.zone || t.zone===tankFilter.zone) && (!tankFilter.status || t.status===tankFilter.status));
+}
+function tankCards(){
+  let list = tankCardsList();
+  if(list.length===0) return `<div class="hint">No tanks match the current filters.</div>`;
+  return list.map(t=>{
+    const col = levelColor(t.level);
+    return `<div class="tankcard">
+      <div class="gaugewrap">
+        <div class="gaugelabel">${t.level}%</div>
+        <div class="gaugefill" style="height:${t.level}%; background:${col};"></div>
+      </div>
+      <div class="tankinfo">
+        <div class="tname">${t.name}</div>
+        <div class="ttype">${t.id} · ${t.type} · ${zoneOf(t.zone).name}</div>
+        ${statusBadge(t.status)}
+        <div class="statrow" style="margin-top:10px;">
+          <div>Capacity <b>${fmt(t.cap)} KL</b></div>
+          <div>Pump <b>${t.pump}</b></div>
+          <div>Inflow <b>${fmt(t.inflow)} KLD</b></div>
+          <div>Outflow <b>${fmt(t.outflow)} KLD</b></div>
+          <div>Turbidity <b>${t.turbidity} NTU</b></div>
+          <div>pH <b>${t.ph}</b></div>
+          <div>Res. chlorine <b>${t.chlorine} mg/L</b></div>
+          <div>Net <b style="color:${t.inflow>=t.outflow?'var(--green)':'var(--red)'}">${t.inflow>=t.outflow?'+':''}${fmt(t.inflow-t.outflow)} KLD</b></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* =========================================================
+   VIEW: DISTRIBUTION LINES
+   ========================================================= */
+function viewLines(){
+  return `
+  <div class="kpirow">
+    <div class="kpi"><div class="lbl">Total pipeline length</div><div class="val">${fmt(LINES.reduce((s,l)=>s+l.length,0),1)}<span class="unit">km</span></div></div>
+    <div class="kpi"><div class="lbl">Trunk mains</div><div class="val">${LINES.filter(l=>l.type==='Trunk Main').length}</div></div>
+    <div class="kpi"><div class="lbl">Distribution mains</div><div class="val">${LINES.filter(l=>l.type==='Distribution Main').length}</div></div>
+    <div class="kpi"><div class="lbl">Flagged lines</div><div class="val red">${LINES.filter(l=>l.status!=='Normal').length}</div></div>
+  </div>
+  <div class="panel">
+    <div class="toolbar">
+      <select onchange="lineFilter.zone=this.value; renderView();">
+        <option value="" ${lineFilter.zone===''?'selected':''}>All zones</option>
+        ${ZONES.map(z=>`<option value="${z.id}" ${lineFilter.zone===z.id?'selected':''}>${z.name}</option>`).join('')}
+      </select>
+      <select onchange="lineFilter.status=this.value; renderView();">
+        <option value="" ${lineFilter.status===''?'selected':''}>All statuses</option>
+        ${['Normal','Leakage Suspected','Blockage Suspected','Sensor Offline'].map(s=>`<option ${lineFilter.status===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+      <select onchange="lineFilter.type=this.value; renderView();">
+        <option value="" ${lineFilter.type===''?'selected':''}>All types</option>
+        ${['Trunk Main','Distribution Main'].map(s=>`<option ${lineFilter.type===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+      ${(lineFilter.zone||lineFilter.status||lineFilter.type) ? `<button class="btn" onclick="lineFilter.zone=''; lineFilter.status=''; lineFilter.type=''; renderView();">Clear filters</button>` : ''}
+      <span class="hint" style="margin:0;">${linesFilteredList().length} of ${LINES.length} lines shown</span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr>
+        <th>Line ID</th><th>Zone</th><th>Type</th><th>From → To</th><th>Dia (mm)</th><th>Material</th><th>Length (km)</th>
+        <th>Input (KLD)</th><th>Output (KLD)</th><th>NRW %</th><th>P-in (mwc)</th><th>P-out (mwc)</th><th>Velocity (m/s)</th><th>Age (yr)</th><th>Status</th>
+      </tr></thead>
+      <tbody>${linesTableRows()}</tbody>
+    </table>
+    </div>
+  </div>`;
+}
+function linesFilteredList(){
+  return LINES.filter(l=> (!lineFilter.zone||l.zone===lineFilter.zone) && (!lineFilter.status||l.status===lineFilter.status) && (!lineFilter.type||l.type===lineFilter.type));
+}
+function linesTableRows(){
+  let list = linesFilteredList();
+  if(list.length===0) return `<tr><td colspan="15" class="hint" style="font-family:var(--sans);">No lines match the current filters.</td></tr>`;
+  return list.map(l=>{
+    const nrw = l.output===null ? null : ((l.input-l.output)/l.input*100);
+    return `<tr>
+      <td class="name">${l.id}</td><td>${l.zone}</td><td>${l.type}</td>
+      <td class="name">${l.from} → ${l.to}</td>
+      <td>${l.dia}</td><td>${l.material}</td><td>${l.length}</td>
+      <td>${fmt(l.input)}</td><td>${l.output===null?'—':fmt(l.output)}</td>
+      <td style="color:${nrw===null?'var(--text-mute)':nrw>15?'var(--red)':nrw>8?'var(--amber)':'var(--green)'}">${nrw===null?'—':fmt(nrw,1)}</td>
+      <td>${l.pin}</td><td>${l.pout===null?'—':l.pout}</td><td>${l.vel===null?'—':l.vel}</td><td>${l.age}</td>
+      <td>${statusBadge(l.status)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* =========================================================
+   VIEW: LEAKAGE & BLOCKAGE DETECTION
+   ========================================================= */
+function viewLeakage(){
+  const totalLoss = LINES.filter(l=>l.status==='Leakage Suspected').reduce((s,l)=>s+(l.input-l.output),0);
+  return `
+  <div class="kpirow">
+    <div class="kpi"><div class="lbl">Leakage alerts</div><div class="val red">${LINES.filter(l=>l.status==='Leakage Suspected').length}</div></div>
+    <div class="kpi"><div class="lbl">Blockage alerts</div><div class="val amber">${LINES.filter(l=>l.status==='Blockage Suspected').length}</div></div>
+    <div class="kpi"><div class="lbl">Sensor faults</div><div class="val" style="color:var(--purple)">${LINES.filter(l=>l.status==='Sensor Offline').length}</div></div>
+    <div class="kpi"><div class="lbl">Estimated water loss</div><div class="val red">${fmt(totalLoss)}<span class="unit">KLD</span></div></div>
+  </div>
+  <div class="panel">
+    <h2>Detection parameters used <span class="cnt">flow-balance · pressure · velocity · acoustic</span></h2>
+    <div class="tanksgrid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));">
+      <div class="zonecard"><b>Flow mismatch (NRW)</b><div class="hint" style="margin-top:6px;">Input metered at DMA head vs output metered at DMA tail. NRW &gt; 15% flags suspected leakage.</div></div>
+      <div class="zonecard"><b>Pressure differential</b><div class="hint" style="margin-top:6px;">Abnormal drop between upstream and downstream pressure loggers along a segment indicates a leak point.</div></div>
+      <div class="zonecard"><b>Velocity deviation</b><div class="hint" style="margin-top:6px;">Flow velocity well below design value with rising upstream pressure signals a blockage or partially closed valve.</div></div>
+      <div class="zonecard"><b>Acoustic / noise loggers</b><div class="hint" style="margin-top:6px;">Correlating acoustic sensors on trunk and distribution mains pinpoint leak location within a short pipe segment.</div></div>
+      <div class="zonecard"><b>SCADA / RTU health</b><div class="hint" style="margin-top:6px;">Loss of communication from a flow meter or pressure transmitter is flagged separately as a sensor fault, not a leak.</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Active anomalies <span class="cnt">${ALERTS.length} total</span></h2>
+    ${ALERTS.map(a=>`
+      <div class="alertrow">
+        <div class="alertsev" style="background:${sevColor(a.sev)}"></div>
+        <div class="alertbody">
+          <div class="alerttitle">${a.type} — ${a.location} <span style="color:var(--text-mute); font-family:var(--mono); font-size:10.5px;">(${a.line}, ${zoneOf(a.zone).name})</span> ${a.loss?`<span style="color:var(--red); font-family:var(--mono); font-size:11px;">· est. loss ${fmt(a.loss)} KLD</span>`:''}</div>
+          <div class="alertmeta">Parameter: ${a.param} · Detection: ${a.method}</div>
+          <div class="alertaction">Recommended action: ${a.action}</div>
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+
+/* =========================================================
+   VIEW: AREA-WISE DISTRIBUTION
+   ========================================================= */
+function viewAreas(){
+  const rows = ZONES.map(z=>{
+    const supplyMld = zoneDeliveredKLD(z.id)/1000;
+    const yesterdayMld = zoneYesterdayDeliveredKLD(z.id);
+    const changePct = YESTERDAY_CHANGE_PCT[z.id]||0;
+    const demandMld = z.population*135/1e6;
+    const lpcd = zoneLPCD(z.id);
+    const deficit = supplyMld-demandMld;
+    const zl = linesIn(z.id);
+    const zt = tanksIn(z.id);
+    const alertCount = ALERTS.filter(a=>a.zone===z.id).length;
+    const supplyHours = deficit>=0 ? (deficit>0.5 ? 5 : 4) : (deficit<-1 ? 2 : 3);
+    return {z, supplyMld, yesterdayMld, changePct, demandMld, lpcd, deficit, alertCount, supplyHours, tankCount:zt.length, lineCount:zl.length};
+  });
+  return `
+  <div class="panel">
+    <h2>Zone-wise service summary <span class="cnt">7 zones · ${fmt(totalPopulation)} population served · click a row for detail</span></h2>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>Zone</th><th>Areas covered</th><th>Population</th><th>Supply today (MLD)</th><th>vs yesterday</th><th>Demand (MLD)</th><th>Deficit / surplus</th><th>Per-capita (LPCD)</th><th>Supply hrs/day</th><th>Alerts</th></tr></thead>
+      <tbody>${rows.map(r=>{
+        const isMaxSupply = r.z.id===maxSupplyZone.id, isMinSupply = r.z.id===minSupplyZone.id;
+        const isMaxLpcd = r.z.id===maxLPCDZone.id, isMinLpcd = r.z.id===minLPCDZone.id;
+        return `
+        <tr style="cursor:pointer;" onclick="openZoneDrawer('${r.z.id}')">
+          <td class="name">${r.z.name}</td>
+          <td class="name" style="white-space:normal; max-width:220px;">${r.z.areas.join(', ')}</td>
+          <td>${fmt(r.z.population)}</td>
+          <td>${fmt(r.supplyMld,1)} ${isMaxSupply?'<span class="badge b-normal" style="margin-left:4px;">most</span>':''}${isMinSupply?'<span class="badge b-low" style="margin-left:4px;">least</span>':''}</td>
+          <td style="color:${r.changePct>=0?'var(--green)':'var(--red)'}">${r.changePct>=0?'▲':'▼'} ${fmt(Math.abs(r.changePct),1)}%</td>
+          <td>${fmt(r.demandMld,1)}</td>
+          <td style="color:${r.deficit>=0?'var(--green)':'var(--red)'}">${r.deficit>=0?'+':''}${fmt(r.deficit,1)}</td>
+          <td style="color:${r.lpcd<100?'var(--red)':r.lpcd<135?'var(--amber)':'var(--green)'}">${r.lpcd} ${isMaxLpcd?'<span class="badge b-normal" style="margin-left:4px;">best</span>':''}${isMinLpcd?'<span class="badge b-critical" style="margin-left:4px;">worst</span>':''}</td>
+          <td>${r.supplyHours}</td>
+          <td style="color:${r.alertCount>0?'var(--red)':'var(--text-mute)'}">${r.alertCount}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    </div>
+  </div>
+  <div class="tanksgrid">
+    ${rows.map(r=>`
+      <div class="zonecard" style="cursor:pointer;" onclick="openZoneDrawer('${r.z.id}')">
+        <div style="display:flex; justify-content:space-between; align-items:baseline;">
+          <b>${r.z.name}</b><span style="font-family:var(--mono); font-size:11px; color:${r.alertCount>0?'var(--red)':'var(--text-mute)'}">${r.alertCount} alert(s)</span>
+        </div>
+        <div class="barmini"><div style="width:${Math.min(100,r.supplyMld/r.demandMld*100)}%; background:${r.deficit>=0?'var(--teal)':'var(--amber)'};"></div></div>
+        <div class="statrow">
+          <div>Supply <b>${fmt(r.supplyMld,1)} MLD</b></div>
+          <div>Demand <b>${fmt(r.demandMld,1)} MLD</b></div>
+          <div>LPCD <b>${r.lpcd}</b></div>
+          <div>vs yesterday <b style="color:${r.changePct>=0?'var(--green)':'var(--red)'}">${r.changePct>=0?'+':''}${fmt(r.changePct,1)}%</b></div>
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+
+/* =========================================================
+   VIEW: MAP
+   ========================================================= */
+function viewMap(){
+  return `
+  <div class="panel">
+    <h2>Network map <span class="cnt">approximate layout, not surveyed GIS · click a zone or WTP marker</span></h2>
+    <div class="svgwrap">${bigMapSVG()}</div>
+    <div class="legend">
+      <span><i style="background:#2DD4BF"></i>Normal operation</span>
+      <span><i style="background:#F5A524"></i>Warning (low level / sensor fault)</span>
+      <span><i style="background:#F14747"></i>Critical (leak, blockage, low level)</span>
+      <span><i style="background:#38BDF8"></i>Water treatment plant</span>
+      <span><i style="background:#3B6D8C; border-radius:2px; width:14px; height:8px;"></i>Sabarmati river</span>
+    </div>
+    <div class="hint">Line thickness on trunk mains is scaled to pipe diameter. Thin spokes off each zone hub are distribution mains reaching individual areas. Click any zone circle or WTP box to open its detail in the side panel.</div>
+  </div>
+  <div class="grid2">
+    <div class="panel">
+      <h2>Trunk main routing</h2>
+      <table><thead><tr><th>Trunk main</th><th>Source WTP</th><th>Feeds</th><th>Design flow</th><th>Status</th></tr></thead>
+      <tbody>${LINES.filter(l=>l.type==='Trunk Main').map(l=>`<tr><td class="name">${l.id}</td><td>${l.from}</td><td class="name">${l.to}</td><td>${fmt(l.input)} KLD</td><td>${statusBadge(l.status)}</td></tr>`).join('')}</tbody></table>
+    </div>
+    <div class="panel">
+      <h2>Zone snapshot <span class="cnt">click a row</span></h2>
+      ${ZONES.map(z=>{
+        const st = worstStatusForZone(z.id);
+        const col = st==='critical'?'var(--red)':st==='warning'?'var(--amber)':'var(--teal)';
+        return `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line-soft); font-size:12.5px; cursor:pointer;" onclick="openZoneDrawer('${z.id}')">
+          <span>${z.name}</span><span style="color:${col}; font-family:var(--mono);">${st.toUpperCase()}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function bigMapSVG(){
+  const zoneList = Object.keys(ZONEPOS_MAP);
+  let s = `<svg viewBox="0 0 780 660" width="100%" style="max-width:560px; display:block; margin:0 auto;" role="img" aria-label="Map of Ahmedabad water distribution zones, treatment plants and trunk mains around the Sabarmati river">`;
+
+  // River (curved, highlighted)
+  s += `<path d="${RIVER_PATH}" fill="none" stroke="#3B6D8C" stroke-width="16" opacity="0.55" stroke-linecap="round"/>`;
+  s += `<path d="${RIVER_PATH}" fill="none" stroke="#5B9BC4" stroke-width="3" opacity="0.7" stroke-linecap="round"/>`;
+  s += `<text x="440" y="45" font-family="IBM Plex Mono" font-size="11" fill="#6F93B0">Sabarmati river</text>`;
+
+  // Trunk mains: WTP -> zone hub, thickness scaled to diameter
+  zoneList.forEach(zid=>{
+    const zp = ZONEPOS_MAP[zid];
+    linesIn(zid).filter(l=>l.type==='Trunk Main').forEach(l=>{
+      const wtp = WTP_POS[l.from];
+      if(!wtp) return;
+      const col = l.status==='Leakage Suspected'||l.status==='Blockage Suspected' ? '#F14747' : l.status==='Sensor Offline' ? '#A78BFA' : '#2DD4BF';
+      const w = Math.max(2, l.dia/140);
+      const midx = (wtp.x+zp.x)/2 + (zp.x>wtp.x?-20:20);
+      const midy = (wtp.y+zp.y)/2;
+      s += `<path d="M${wtp.x} ${wtp.y} Q ${midx} ${midy}, ${zp.x} ${zp.y}" fill="none" stroke="${col}" stroke-width="${w}" opacity="0.8"/>`;
+    });
+  });
+
+  // Distribution main spokes off each zone hub
+  zoneList.forEach(zid=>{
+    const zp = ZONEPOS_MAP[zid];
+    const dmains = linesIn(zid).filter(l=>l.type==='Distribution Main');
+    dmains.forEach((l,i)=>{
+      const angleDeg = 205 + i*130;
+      const rad = angleDeg*Math.PI/180;
+      const len = 58;
+      const ex = zp.x + Math.cos(rad)*len;
+      const ey = zp.y + Math.sin(rad)*len;
+      const col = l.status==='Leakage Suspected'||l.status==='Blockage Suspected' ? '#F14747' : '#3D5972';
+      s += `<line x1="${zp.x}" y1="${zp.y}" x2="${ex}" y2="${ey}" stroke="${col}" stroke-width="2" opacity="0.85"/>`;
+      s += `<circle cx="${ex}" cy="${ey}" r="3" fill="${col}"/>`;
+      const lblX = zp.x + Math.cos(rad)*(len+8);
+      const lblY = zp.y + Math.sin(rad)*(len+8);
+      const anchor = Math.cos(rad) > 0.3 ? 'start' : Math.cos(rad) < -0.3 ? 'end' : 'middle';
+      s += `<text x="${lblX}" y="${lblY}" text-anchor="${anchor}" font-family="IBM Plex Mono" font-size="9" fill="#5A7089">${l.to.split('/')[0].trim().slice(0,16)}</text>`;
+    });
+  });
+
+  // WTP nodes
+  Object.entries(WTP_POS).forEach(([name,p])=>{
+    s += `<g style="cursor:pointer" onclick="highlightWtp('${name}')">
+      <rect x="${p.x-56}" y="${p.y-18}" width="112" height="36" rx="6" fill="#0F1E2E" stroke="#38BDF8" stroke-width="1.4"/>
+      <text x="${p.x}" y="${p.y+5}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="#DCE7F2">${name}</text>
+    </g>`;
+  });
+
+  // Zone hubs
+  zoneList.forEach(zid=>{
+    const zp = ZONEPOS_MAP[zid];
+    const z = zoneOf(zid);
+    const st = worstStatusForZone(zid);
+    const col = st==='critical'?'#F14747':st==='warning'?'#F5A524':'#2DD4BF';
+    const zTanks = tanksIn(zid);
+    const avgLvl = Math.round(zTanks.reduce((s,t)=>s+t.level,0)/zTanks.length);
+    const isSel = selectedZoneId===zid;
+    s += `<g style="cursor:pointer" onclick="openZoneDrawer('${zid}')">`;
+    s += `<circle cx="${zp.x}" cy="${zp.y}" r="40" fill="#13253A" stroke="${col}" stroke-width="${isSel?3.5:2}"/>`;
+    if(isSel) s += `<circle cx="${zp.x}" cy="${zp.y}" r="46" fill="none" stroke="${col}" stroke-width="1" opacity="0.5"/>`;
+    s += `<text x="${zp.x}" y="${zp.y-8}" text-anchor="middle" font-family="IBM Plex Sans" font-weight="600" font-size="12" fill="#DCE7F2">${zid}</text>`;
+    s += `<text x="${zp.x}" y="${zp.y+9}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="${col}">${avgLvl}%</text>`;
+    s += `<text x="${zp.x}" y="${zp.y+24}" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#8AA0B8">${zTanks.length}T · ${linesIn(zid).length}L</text>`;
+    s += `</g>`;
+    s += `<text x="${zp.x}" y="${zp.y+64}" text-anchor="middle" font-family="IBM Plex Sans" font-size="10" fill="#8AA0B8">${z.name}</text>`;
+  });
+
+  s += `</svg>`;
+  return s;
+}
+function highlightWtp(name){
+  const feedLines = LINES.filter(l=>l.type==='Trunk Main' && l.from===name);
+  const totalFeed = feedLines.reduce((s,l)=>s+l.input,0);
+  openWtpDrawer(name, feedLines, totalFeed);
+}
+
+/* =========================================================
+   VIEW: REPORTS
+   ========================================================= */
+function viewReports(){
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
+  return `
+  <div class="panel">
+    <h2>Daily operations report <span class="cnt">${dateStr}</span></h2>
+    <div class="statrow" style="grid-template-columns:repeat(3,1fr); gap:10px 20px; font-size:12.5px;">
+      <div>Total production: <b>${fmt(totalProductionKLD/1000,1)} MLD</b></div>
+      <div>Total distribution: <b>${fmt(totalOutflow/1000,1)} MLD</b></div>
+      <div>City-wide NRW: <b>${fmt(overallNRWpct,1)}%</b></div>
+      <div>Avg tank level: <b>${avgLevel}%</b></div>
+      <div>Per-capita supply: <b>${perCapitaLPCD} LPCD</b></div>
+      <div>Population served: <b>${fmt(totalPopulation)}</b></div>
+      <div>Active leakage alerts: <b>${LINES.filter(l=>l.status==='Leakage Suspected').length}</b></div>
+      <div>Active blockage alerts: <b>${LINES.filter(l=>l.status==='Blockage Suspected').length}</b></div>
+      <div>Sensor faults: <b>${LINES.filter(l=>l.status==='Sensor Offline').length}</b></div>
+    </div>
+    <div class="toolbar" style="margin-top:16px;">
+      <button class="btn primary" onclick="exportCSV('tanks')">Download tank levels (CSV)</button>
+      <button class="btn" onclick="exportCSV('lines')">Download line parameters (CSV)</button>
+      <button class="btn" onclick="exportCSV('areas')">Download area-wise report (CSV)</button>
+      <button class="btn" onclick="exportCSV('alerts')">Download alerts log (CSV)</button>
+      <button class="btn" onclick="window.print()">Print / save as PDF</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Report contents</h2>
+    <div class="hint">
+      <b style="color:var(--text)">Tank levels CSV</b> — tank ID, zone, type, capacity, level %, inflow/outflow KLD, water quality (turbidity, pH, residual chlorine), status.<br><br>
+      <b style="color:var(--text)">Line parameters CSV</b> — line ID, zone, type, route, diameter, material, length, input/output flow, NRW%, pressure in/out, velocity, age, status.<br><br>
+      <b style="color:var(--text)">Area-wise CSV</b> — zone, areas covered, population, supply/demand MLD, per-capita LPCD, supply hours, deficit.<br><br>
+      <b style="color:var(--text)">Alerts log CSV</b> — alert type, severity, line/tank ID, zone, location, parameter reading, detection method, estimated loss, recommended action.
+    </div>
+  </div>`;
+}
+
+function exportCSV(kind){
+  let rows = [], filename = '';
+  if(kind==='tanks'){
+    filename = 'amc_tank_levels.csv';
+    rows.push(['Tank ID','Name','Type','Zone','Capacity (KL)','Level %','Inflow (KLD)','Outflow (KLD)','Turbidity (NTU)','pH','Res. Chlorine (mg/L)','Pump','Status']);
+    TANKS.forEach(t=>rows.push([t.id,t.name,t.type,zoneOf(t.zone).name,t.cap,t.level,t.inflow,t.outflow,t.turbidity,t.ph,t.chlorine,t.pump,t.status]));
+  } else if(kind==='lines'){
+    filename = 'amc_distribution_lines.csv';
+    rows.push(['Line ID','Zone','Type','From','To','Diameter (mm)','Material','Length (km)','Input (KLD)','Output (KLD)','NRW %','Pressure In (mwc)','Pressure Out (mwc)','Velocity (m/s)','Age (yr)','Status']);
+    LINES.forEach(l=>{
+      const nrw = l.output===null?'':((l.input-l.output)/l.input*100).toFixed(1);
+      rows.push([l.id,l.zone,l.type,l.from,l.to,l.dia,l.material,l.length,l.input,l.output===null?'':l.output,nrw,l.pin,l.pout===null?'':l.pout,l.vel===null?'':l.vel,l.age,l.status]);
+    });
+  } else if(kind==='areas'){
+    filename = 'amc_area_wise_supply.csv';
+    rows.push(['Zone','Areas','Population','Supply (MLD)','Demand (MLD)','Per-capita (LPCD)','Supply hrs/day']);
+    ZONES.forEach(z=>{
+      const zt = tanksIn(z.id);
+      const supplyMld = zt.reduce((s,t)=>s+t.outflow,0)/1000;
+      const demandMld = z.population*135/1e6;
+      const lpcd = Math.round(supplyMld*1e6/z.population);
+      rows.push([z.name, z.areas.join(' | '), z.population, supplyMld.toFixed(1), demandMld.toFixed(1), lpcd, supplyMld>=demandMld?5:3]);
+    });
+  } else if(kind==='alerts'){
+    filename = 'amc_alerts_log.csv';
+    rows.push(['Type','Severity','ID','Zone','Location','Parameter','Method','Est. Loss (KLD)','Action']);
+    ALERTS.forEach(a=>rows.push([a.type,a.sev,a.line,zoneOf(a.zone).name,a.location,a.param,a.method,a.loss||'',a.action]));
+  }
+  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* =========================================================
+   MISC — clock, alert pill, init
+   ========================================================= */
+function afterRender(){
+  document.getElementById('alertcount').textContent = `${ALERTS.length} active alerts`;
+}
+function tickClock(){
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-IN', {hour12:false});
+}
+setInterval(tickClock, 1000);
+tickClock();
+renderNav();
+renderView();
+</script>
+</body>
+</html>
