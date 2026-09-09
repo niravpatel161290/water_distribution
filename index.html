@@ -9,16 +9,42 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ===== Theme tokens — light is the default; [data-theme="dark"] on <html> switches the palette ===== */
 :root{
+  --bg:#EEF2F6; --panel:#FFFFFF; --panel2:#F3F6FA; --line:#DCE3EA; --line-soft:#E8EDF2;
+  --text:#101B27; --text-dim:#45566B; --text-mute:#6B7C8F;
+  --teal:#0D9488; --teal-dim:#0D9488; --teal-dim-fg:#F0FDFA; --teal-dim-border:#0B7A70; --sky:#0284C7;
+  --green:#15803D; --green-bg:#E5F6EA; --green-fg:#15803D;
+  --amber:#B45309; --amber-bg:#FDF0DD; --amber-fg:#B45309;
+  --red:#B91C1C; --red-bg:#FBE9E9; --red-fg:#B91C1C;
+  --purple:#7C3AED; --purple-bg:#F1EBFB; --purple-fg:#7C3AED;
+  --orange-bg:#FCE9D6; --orange-fg:#9A3412;
+  --track:#E2E8F0;
+  --alert-border:#F3C6C6; --alert-fg:#B91C1C;
+  --river:#B7CFE0; --river-core:#6FA8D0; --river-label:#5E7A93;
+  --wire:#C1CBD6;
+  --shadow-scrim:rgba(15,23,32,.4); --shadow-drop:rgba(15,23,32,.18);
+  --mono: 'IBM Plex Mono', monospace; --sans:'IBM Plex Sans', sans-serif;
+}
+:root[data-theme="dark"]{
   --bg:#0A1420; --panel:#0F1E2E; --panel2:#13253A; --line:#1E3450; --line-soft:#17293E;
   --text:#DCE7F2; --text-dim:#8AA0B8; --text-mute:#5A7089;
-  --teal:#2DD4BF; --teal-dim:#0F6E56; --sky:#38BDF8;
-  --green:#22C55E; --green-bg:#0F2A1C; --amber:#F5A524; --amber-bg:#2E2308; --red:#F14747; --red-bg:#331014; --purple:#A78BFA; --purple-bg:#221A3D;
-  --mono: 'IBM Plex Mono', monospace; --sans:'IBM Plex Sans', sans-serif;
+  --teal:#2DD4BF; --teal-dim:#0F6E56; --teal-dim-fg:#D5FBF3; --teal-dim-border:#146152; --sky:#38BDF8;
+  --green:#22C55E; --green-bg:#0F2A1C; --green-fg:#7BE8A0;
+  --amber:#F5A524; --amber-bg:#2E2308; --amber-fg:#FFCB6B;
+  --red:#F14747; --red-bg:#331014; --red-fg:#FF8A8A;
+  --purple:#A78BFA; --purple-bg:#221A3D; --purple-fg:#C9B8FF;
+  --orange-bg:#331d08; --orange-fg:#FFB870;
+  --track:#08121C;
+  --alert-border:#4a1f24; --alert-fg:#FF9C9C;
+  --river:#3B6D8C; --river-core:#5B9BC4; --river-label:#6F93B0;
+  --wire:#3D5972;
+  --shadow-scrim:rgba(3,8,14,.6); --shadow-drop:rgba(0,0,0,.35);
 }
 *{box-sizing:border-box; margin:0; padding:0;}
 html,body{background:var(--bg); color:var(--text); font-family:var(--sans); height:100%;}
-body{display:flex; min-height:100vh; font-size:14px;}
+body{display:flex; min-height:100vh; font-size:14px; transition:background-color .15s ease, color .15s ease;}
+#sidebar, #main, #topbar, .panel, .kpi, .paramcard, .tankcard, .zonecard, #zoneDrawer, .pill, select, input[type=text], .btn{transition:background-color .15s ease, border-color .15s ease, color .15s ease;}
 ::-webkit-scrollbar{width:8px; height:8px;}
 ::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -31,7 +57,7 @@ body{display:flex; min-height:100vh; font-size:14px;}
 nav{flex:1; padding:12px 10px; display:flex; flex-direction:column; gap:2px;}
 .navbtn{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:6px; color:var(--text-dim); cursor:pointer; font-size:13px; border:1px solid transparent; transition:background .12s;}
 .navbtn:hover{background:var(--panel2); color:var(--text);}
-.navbtn.active{background:var(--teal-dim); color:#D5FBF3; border-color:#146152;}
+.navbtn.active{background:var(--teal-dim); color:var(--teal-dim-fg); border-color:var(--teal-dim-border);}
 .navbtn .dot{width:6px; height:6px; border-radius:50%; background:var(--text-mute); flex-shrink:0;}
 .navbtn.active .dot{background:var(--teal);}
 .sidebar-foot{padding:14px 18px; border-top:1px solid var(--line); font-size:10.5px; color:var(--text-mute); font-family:var(--mono); line-height:1.6;}
@@ -44,7 +70,10 @@ nav{flex:1; padding:12px 10px; display:flex; flex-direction:column; gap:2px;}
 .topbar-right{display:flex; align-items:center; gap:18px; font-family:var(--mono); font-size:12px; color:var(--text-dim);}
 .clock{color:var(--teal);}
 .pill{display:flex; align-items:center; gap:6px; background:var(--panel2); border:1px solid var(--line); padding:5px 10px; border-radius:20px;}
-.pill.alertpill{border-color:#4a1f24; color:#FF9C9C;}
+.theme-toggle{cursor:pointer; font-family:var(--sans); font-size:12px; color:var(--text-dim); font-weight:500;}
+.theme-toggle:hover{border-color:var(--teal); color:var(--teal);}
+.theme-toggle #themeIcon{font-size:13px; line-height:1;}
+.pill.alertpill{border-color:var(--alert-border); color:var(--alert-fg);}
 .blink{width:7px; height:7px; border-radius:50%; background:var(--red); animation:blink 1.4s infinite;}
 @keyframes blink{0%,100%{opacity:1} 50%{opacity:.25}}
 
@@ -72,12 +101,12 @@ tr:hover td{background:var(--panel2);}
 td.name{font-family:var(--sans); color:var(--text);}
 
 .badge{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-family:var(--sans); padding:3px 9px; border-radius:20px; font-weight:500; white-space:nowrap;}
-.b-normal{background:var(--green-bg); color:#7BE8A0;}
-.b-low{background:var(--amber-bg); color:#FFCB6B;}
-.b-critical{background:var(--red-bg); color:#FF8A8A;}
-.b-leak{background:var(--red-bg); color:#FF8A8A;}
-.b-block{background:#331d08; color:#FFB870;}
-.b-sensor{background:var(--purple-bg); color:#C9B8FF;}
+.b-normal{background:var(--green-bg); color:var(--green-fg);}
+.b-low{background:var(--amber-bg); color:var(--amber-fg);}
+.b-critical{background:var(--red-bg); color:var(--red-fg);}
+.b-leak{background:var(--red-bg); color:var(--red-fg);}
+.b-block{background:var(--orange-bg); color:var(--orange-fg);}
+.b-sensor{background:var(--purple-bg); color:var(--purple-fg);}
 .badge .bdot{width:6px; height:6px; border-radius:50%; background:currentColor;}
 
 select, input[type=text]{background:var(--panel2); border:1px solid var(--line); color:var(--text); padding:7px 10px; border-radius:6px; font-family:var(--sans); font-size:12.5px; outline:none;}
@@ -85,26 +114,53 @@ select:focus, input:focus{border-color:var(--teal);}
 .toolbar{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; align-items:center;}
 .btn{background:var(--panel2); border:1px solid var(--line); color:var(--text); padding:8px 14px; border-radius:6px; font-size:12.5px; cursor:pointer; font-family:var(--sans); display:inline-flex; align-items:center; gap:6px;}
 .btn:hover{border-color:var(--teal); color:var(--teal);}
-.btn.primary{background:var(--teal-dim); border-color:#146152; color:#D5FBF3;}
+.btn.primary{background:var(--teal-dim); border-color:var(--teal-dim-border); color:var(--teal-dim-fg);}
 
 .tankcard{background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:14px; display:flex; gap:14px;}
-.gaugewrap{width:46px; height:100px; background:#08121C; border:1px solid var(--line); border-radius:5px; position:relative; overflow:hidden; flex-shrink:0;}
+.gaugewrap{width:46px; height:100px; background:var(--track); border:1px solid var(--line); border-radius:5px; position:relative; overflow:hidden; flex-shrink:0;}
 .gaugefill{position:absolute; bottom:0; left:0; right:0; transition:height .3s;}
 .gaugelabel{position:absolute; top:4px; left:0; right:0; text-align:center; font-family:var(--mono); font-size:10px; color:var(--text-dim); z-index:2;}
 .tankinfo{flex:1; min-width:0;}
-.tankinfo .tname{font-size:13px; font-weight:600; margin-bottom:2px;}
-.tankinfo .ttype{font-size:10.5px; color:var(--text-mute); font-family:var(--mono); margin-bottom:8px;}
+.tankinfo .tname{font-size:14px; font-weight:600; margin-bottom:2px; letter-spacing:.1px;}
+.tankinfo .ttype{font-size:10.5px; color:var(--text-mute); font-family:var(--mono); margin-bottom:9px;}
 .statrow{display:grid; grid-template-columns:1fr 1fr; gap:4px 14px; font-size:11px; color:var(--text-dim); font-family:var(--mono);}
 .statrow b{color:var(--text); font-weight:500;}
-.tanksgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px;}
+.tanksgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:14px;}
+
+/* ===== Spec grid — uniform label/value blocks for dense asset detail (tank cards, drawer rows) ===== */
+.chiprow{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:2px;}
+.specgrid{display:grid; grid-template-columns:1fr 1fr; gap:12px 20px; margin-top:13px; padding-top:13px; border-top:1px solid var(--line);}
+.specgrid.tight{gap:9px 16px; margin-top:10px; padding-top:10px;}
+.spec{display:flex; flex-direction:column; gap:3px; min-width:0;}
+.spec .specl{font-size:9.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--text-mute); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.spec .specv{font-family:var(--mono); font-size:13px; font-weight:600; color:var(--text); line-height:1.3; overflow-wrap:break-word;}
+.spec .specv .u{font-family:var(--sans); font-weight:400; color:var(--text-mute); font-size:10.5px; margin-left:3px;}
+.spec.span2{grid-column:span 2;}
 
 .zonecard{background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:16px;}
-.barmini{height:8px; background:#08121C; border-radius:4px; overflow:hidden; margin:8px 0;}
+.barmini{height:8px; background:var(--track); border-radius:4px; overflow:hidden; margin:8px 0;}
 .barmini > div{height:100%;}
 
 .legend{display:flex; gap:16px; flex-wrap:wrap; font-size:11px; color:var(--text-dim); margin-top:10px;}
 .legend span{display:inline-flex; align-items:center; gap:6px;}
 .legend i{width:9px; height:9px; border-radius:50%; display:inline-block;}
+
+/* ===== Key-parameter category cards (Overview + reused on individual tabs) ===== */
+.paramgrid{display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;}
+@media (max-width:1180px){.paramgrid{grid-template-columns:repeat(2, 1fr);}}
+@media (max-width:680px){.paramgrid{grid-template-columns:1fr;}}
+.paramcard{background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:16px 18px 6px;}
+.paramcard .pctitle{display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; margin-bottom:4px; padding-bottom:11px; border-bottom:1px solid var(--line);}
+.paramcard .pctitle .pcdot{width:7px; height:7px; border-radius:50%; flex-shrink:0;}
+.paramrow{padding:10px 0; border-bottom:1px solid var(--line-soft); display:flex; flex-direction:column; gap:4px;}
+.paramrow:last-child{border-bottom:none;}
+.paramrow .plbl{font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--text-mute);}
+.paramrow .pval{font-family:var(--mono); font-weight:600; font-size:14px; line-height:1.3;}
+.paramrow .pval .pnote{font-family:var(--sans); font-weight:400; color:var(--text-mute); font-size:11px; margin-left:6px;}
+.pval.ok{color:var(--teal);} .pval.warn{color:var(--amber);} .pval.bad{color:var(--red);} .pval.neutral{color:var(--text);}
+.flagchip{display:inline-block; font-size:9.5px; font-family:var(--sans); font-weight:600; text-transform:uppercase; letter-spacing:.3px; padding:2px 6px; border-radius:3px; margin-left:6px; vertical-align:middle;}
+.flagchip.bad{background:var(--red-bg); color:var(--red-fg);}
+.flagchip.warn{background:var(--amber-bg); color:var(--amber-fg);}
 
 .alertrow{display:flex; gap:12px; padding:11px 0; border-bottom:1px solid var(--line-soft); align-items:flex-start;}
 .alertrow:last-child{border-bottom:none;}
@@ -120,16 +176,16 @@ select:focus, input:focus{border-color:var(--teal);}
 .svgwrap{width:100%; overflow-x:auto;}
 
 /* ===== Zone detail drawer (right sidebar) ===== */
-#drawerBackdrop{position:fixed; inset:0; background:rgba(3,8,14,.6); z-index:40; opacity:0; pointer-events:none; transition:opacity .2s;}
+#drawerBackdrop{position:fixed; inset:0; background:var(--shadow-scrim); z-index:40; opacity:0; pointer-events:none; transition:opacity .2s;}
 #drawerBackdrop.open{opacity:1; pointer-events:auto;}
-#zoneDrawer{position:fixed; top:0; right:0; height:100vh; width:440px; max-width:94vw; background:var(--panel); border-left:1px solid var(--line); z-index:50; transform:translateX(100%); transition:transform .25s cubic-bezier(.2,.8,.3,1); overflow-y:auto; box-shadow:-8px 0 24px rgba(0,0,0,.35);}
+#zoneDrawer{position:fixed; top:0; right:0; height:100vh; width:440px; max-width:94vw; background:var(--panel); border-left:1px solid var(--line); z-index:50; transform:translateX(100%); transition:transform .25s cubic-bezier(.2,.8,.3,1); overflow-y:auto; box-shadow:-8px 0 24px var(--shadow-drop);}
 #zoneDrawer.open{transform:translateX(0);}
 .drawer-head{position:sticky; top:0; background:var(--panel); border-bottom:1px solid var(--line); padding:18px 22px; display:flex; justify-content:space-between; align-items:flex-start; z-index:2;}
 .drawer-close{cursor:pointer; color:var(--text-dim); font-size:20px; line-height:1; padding:4px 8px; border-radius:6px;}
 .drawer-close:hover{background:var(--panel2); color:var(--text);}
 .drawer-body{padding:18px 22px 40px;}
 .drawer-badge{display:inline-block; font-size:10px; font-family:var(--mono); padding:3px 8px; border-radius:4px; margin-top:6px; margin-right:6px;}
-.mini-gauge{width:8px; height:34px; background:#08121C; border:1px solid var(--line); border-radius:3px; position:relative; overflow:hidden; flex-shrink:0;}
+.mini-gauge{width:8px; height:34px; background:var(--track); border:1px solid var(--line); border-radius:3px; position:relative; overflow:hidden; flex-shrink:0;}
 .mini-gauge > div{position:absolute; bottom:0; left:0; right:0;}
 .drawer-tankrow{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line-soft);}
 .drawer-tankrow .tinfo{flex:1; min-width:0; font-size:12px;}
@@ -138,6 +194,15 @@ select:focus, input:focus{border-color:var(--teal);}
 </style>
 </head>
 <body>
+<script>
+/* Applied immediately, before the rest of the page paints, so a saved dark preference doesn't flash light first. */
+(function(){
+  try{
+    var saved = localStorage.getItem('jalsetu-theme');
+    if(saved==='dark') document.documentElement.setAttribute('data-theme','dark');
+  }catch(e){}
+})();
+</script>
 
 <div id="sidebar">
   <div class="brand">
@@ -158,6 +223,9 @@ select:focus, input:focus{border-color:var(--teal);}
       <div class="pill alertpill" id="alertpill"><span class="blink"></span><span id="alertcount">0 active alerts</span></div>
       <div class="pill"><span>Ahmedabad</span></div>
       <div class="pill clock" id="clock">--:--:--</div>
+      <button class="pill theme-toggle" id="themeToggle" onclick="toggleTheme()" type="button" aria-label="Switch color theme">
+        <span id="themeIcon" aria-hidden="true">☀</span><span id="themeLabel">Light</span>
+      </button>
     </div>
   </div>
   <div id="view"></div>
@@ -171,57 +239,76 @@ select:focus, input:focus{border-color:var(--teal);}
    DATA MODEL — synthetic demo data for Ahmedabad Municipal Corporation
    ========================================================= */
 
+/* peakFactor = peak-hour demand as a multiple of average daily demand (hydraulic design factor).
+   seasonalVariationPct = summer peak-month demand uplift over annual average (evaporative/cooling load).
+   fireFlowLPS = design fire-fighting flow reserved on the network per CPHEEO/IS 3844 (higher for
+   industrial/commercial-dense zones), on top of domestic demand. */
 const ZONES = [
-  {id:'CZ', name:'Central Zone', areas:['Khadia','Raikhad','Kalupur','Dariapur'], population:380000},
-  {id:'NZ', name:'North Zone', areas:['Naranpura','Sabarmati','Chandkheda (N)','Motera'], population:520000},
-  {id:'EZ', name:'East Zone', areas:['Vastral','Nikol','Odhav','Amraiwadi'], population:610000},
-  {id:'WZ', name:'West Zone', areas:['Vastrapur','Bodakdev','Thaltej','Navrangpura'], population:470000},
-  {id:'SZ', name:'South Zone', areas:['Maninagar','Isanpur','Vatva','Ghodasar'], population:550000},
-  {id:'NWZ', name:'North-West Zone', areas:['Ranip','Chandlodia','Gota','Chandkheda (W)'], population:430000},
-  {id:'SWZ', name:'South-West Zone', areas:['Bopal','South Bopal','Sarkhej','Vejalpur'], population:490000},
+  {id:'CZ', name:'Central Zone', areas:['Khadia','Raikhad','Kalupur','Dariapur'], population:380000, peakFactor:2.1, seasonalVariationPct:18, fireFlowLPS:90},
+  {id:'NZ', name:'North Zone', areas:['Naranpura','Sabarmati','Chandkheda (N)','Motera'], population:520000, peakFactor:1.9, seasonalVariationPct:22, fireFlowLPS:75},
+  {id:'EZ', name:'East Zone', areas:['Vastral','Nikol','Odhav','Amraiwadi'], population:610000, peakFactor:2.0, seasonalVariationPct:25, fireFlowLPS:95},
+  {id:'WZ', name:'West Zone', areas:['Vastrapur','Bodakdev','Thaltej','Navrangpura'], population:470000, peakFactor:1.85, seasonalVariationPct:20, fireFlowLPS:80},
+  {id:'SZ', name:'South Zone', areas:['Maninagar','Isanpur','Vatva','Ghodasar'], population:550000, peakFactor:1.95, seasonalVariationPct:24, fireFlowLPS:85},
+  {id:'NWZ', name:'North-West Zone', areas:['Ranip','Chandlodia','Gota','Chandkheda (W)'], population:430000, peakFactor:1.8, seasonalVariationPct:19, fireFlowLPS:60},
+  {id:'SWZ', name:'South-West Zone', areas:['Bopal','South Bopal','Sarkhej','Vejalpur'], population:490000, peakFactor:1.85, seasonalVariationPct:21, fireFlowLPS:65},
 ];
 
 const WTPS = ['Jaspur WTP','Raska WTP','Kotarpur WTP'];
 
+/* Source & supply — capacity/output in MLD, reliability = uptime over trailing 90 days, reserve = clear-water
+   reservoir carry-over at current output rate. Keyed by WTP name so it lines up with WTP_POS / LINES.from. */
+const WTP_INFO = {
+  'Jaspur WTP':   {capacityMLD:12,  reliabilityPct:97.5, reserveHrs:6},
+  'Raska WTP':    {capacityMLD:30,  reliabilityPct:96.2, reserveHrs:5},
+  'Kotarpur WTP': {capacityMLD:24,  reliabilityPct:98.1, reserveHrs:8},
+};
+
+/* Water age = mean residence time from clear-water tank to this storage point (hrs), from hydraulic model.
+   Contamination risk = combined read on chlorine residual + turbidity + water age (Low/Medium/High).
+   Valve = downstream control valve position. SCADA = RTU/telemetry link health for this asset.
+   lastMaint/nextMaint = ESR/GSR mechanical + water-quality maintenance cycle (ISO date). */
 const TANKS = [
-  {id:'CZ-ESR-01', name:'Khadia ESR', type:'Elevated (ESR)', zone:'CZ', cap:4500, level:78, inflow:3800, outflow:3650, turbidity:0.8, ph:7.1, chlorine:0.32, pump:'Running', status:'Normal'},
-  {id:'CZ-GSR-01', name:'Raikhad GSR', type:'Ground (GSR)', zone:'CZ', cap:9000, level:62, inflow:7200, outflow:7050, turbidity:1.1, ph:7.0, chlorine:0.28, pump:'Running', status:'Normal'},
-  {id:'NZ-ESR-01', name:'Naranpura ESR', type:'Elevated (ESR)', zone:'NZ', cap:6000, level:45, inflow:5100, outflow:5400, turbidity:0.9, ph:7.2, chlorine:0.30, pump:'Running', status:'Low'},
-  {id:'NZ-GSR-01', name:'Sabarmati GSR', type:'Ground (GSR)', zone:'NZ', cap:12000, level:81, inflow:9600, outflow:9300, turbidity:0.7, ph:7.3, chlorine:0.34, pump:'Running', status:'Normal'},
-  {id:'EZ-ESR-01', name:'Vastral ESR', type:'Elevated (ESR)', zone:'EZ', cap:5000, level:28, inflow:4200, outflow:4900, turbidity:1.4, ph:6.9, chlorine:0.22, pump:'Running', status:'Critical'},
-  {id:'EZ-GSR-01', name:'Nikol GSR', type:'Ground (GSR)', zone:'EZ', cap:11000, level:55, inflow:8800, outflow:8700, turbidity:1.0, ph:7.1, chlorine:0.29, pump:'Running', status:'Normal'},
-  {id:'WZ-ESR-01', name:'Vastrapur ESR', type:'Elevated (ESR)', zone:'WZ', cap:5200, level:88, inflow:4600, outflow:4300, turbidity:0.6, ph:7.2, chlorine:0.35, pump:'Running', status:'Normal'},
-  {id:'WZ-GSR-01', name:'Thaltej GSR', type:'Ground (GSR)', zone:'WZ', cap:10500, level:71, inflow:8200, outflow:8000, turbidity:0.7, ph:7.1, chlorine:0.31, pump:'Running', status:'Normal'},
-  {id:'SZ-ESR-01', name:'Maninagar ESR', type:'Elevated (ESR)', zone:'SZ', cap:4800, level:39, inflow:4000, outflow:4500, turbidity:1.6, ph:6.8, chlorine:0.19, pump:'Running', status:'Low'},
-  {id:'SZ-GSR-01', name:'Vatva GSR', type:'Ground (GSR)', zone:'SZ', cap:9800, level:66, inflow:7600, outflow:7400, turbidity:1.2, ph:7.0, chlorine:0.27, pump:'Running', status:'Normal'},
-  {id:'NWZ-ESR-01', name:'Ranip ESR', type:'Elevated (ESR)', zone:'NWZ', cap:4600, level:92, inflow:3900, outflow:3600, turbidity:0.5, ph:7.3, chlorine:0.36, pump:'Running', status:'Normal'},
-  {id:'NWZ-GSR-01', name:'Chandkheda GSR', type:'Ground (GSR)', zone:'NWZ', cap:8800, level:58, inflow:6900, outflow:6800, turbidity:0.9, ph:7.1, chlorine:0.30, pump:'Running', status:'Normal'},
-  {id:'SWZ-ESR-01', name:'Bopal ESR', type:'Elevated (ESR)', zone:'SWZ', cap:5400, level:34, inflow:4700, outflow:5200, turbidity:1.3, ph:6.9, chlorine:0.21, pump:'Running', status:'Low'},
-  {id:'SWZ-GSR-01', name:'Sarkhej GSR', type:'Ground (GSR)', zone:'SWZ', cap:9200, level:69, inflow:7100, outflow:6950, turbidity:0.8, ph:7.2, chlorine:0.32, pump:'Running', status:'Normal'},
+  {id:'CZ-ESR-01', name:'Khadia ESR', type:'Elevated (ESR)', zone:'CZ', cap:4500, level:78, inflow:3800, outflow:3650, turbidity:0.8, ph:7.1, chlorine:0.32, pump:'Running', status:'Normal', waterAge:6, contam:'Low', valve:'Open', scada:'Online', lastMaint:'2026-07-18', nextMaint:'2026-10-18'},
+  {id:'CZ-GSR-01', name:'Raikhad GSR', type:'Ground (GSR)', zone:'CZ', cap:9000, level:62, inflow:7200, outflow:7050, turbidity:1.1, ph:7.0, chlorine:0.28, pump:'Running', status:'Normal', waterAge:9, contam:'Medium', valve:'Open', scada:'Online', lastMaint:'2026-06-22', nextMaint:'2026-09-22'},
+  {id:'NZ-ESR-01', name:'Naranpura ESR', type:'Elevated (ESR)', zone:'NZ', cap:6000, level:45, inflow:5100, outflow:5400, turbidity:0.9, ph:7.2, chlorine:0.30, pump:'Running', status:'Low', waterAge:14, contam:'Medium', valve:'Throttled', scada:'Online', lastMaint:'2026-05-10', nextMaint:'2026-08-10'},
+  {id:'NZ-GSR-01', name:'Sabarmati GSR', type:'Ground (GSR)', zone:'NZ', cap:12000, level:81, inflow:9600, outflow:9300, turbidity:0.7, ph:7.3, chlorine:0.34, pump:'Running', status:'Normal', waterAge:7, contam:'Low', valve:'Open', scada:'Online', lastMaint:'2026-07-02', nextMaint:'2026-10-02'},
+  {id:'EZ-ESR-01', name:'Vastral ESR', type:'Elevated (ESR)', zone:'EZ', cap:5000, level:28, inflow:4200, outflow:4900, turbidity:1.4, ph:6.9, chlorine:0.22, pump:'Running', status:'Critical', waterAge:22, contam:'High', valve:'Throttled', scada:'Online', lastMaint:'2026-03-15', nextMaint:'2026-06-15'},
+  {id:'EZ-GSR-01', name:'Nikol GSR', type:'Ground (GSR)', zone:'EZ', cap:11000, level:55, inflow:8800, outflow:8700, turbidity:1.0, ph:7.1, chlorine:0.29, pump:'Running', status:'Normal', waterAge:10, contam:'Medium', valve:'Open', scada:'Online', lastMaint:'2026-06-30', nextMaint:'2026-09-30'},
+  {id:'WZ-ESR-01', name:'Vastrapur ESR', type:'Elevated (ESR)', zone:'WZ', cap:5200, level:88, inflow:4600, outflow:4300, turbidity:0.6, ph:7.2, chlorine:0.35, pump:'Running', status:'Normal', waterAge:5, contam:'Low', valve:'Open', scada:'Online', lastMaint:'2026-08-01', nextMaint:'2026-11-01'},
+  {id:'WZ-GSR-01', name:'Thaltej GSR', type:'Ground (GSR)', zone:'WZ', cap:10500, level:71, inflow:8200, outflow:8000, turbidity:0.7, ph:7.1, chlorine:0.31, pump:'Running', status:'Normal', waterAge:8, contam:'Low', valve:'Open', scada:'Online', lastMaint:'2026-07-15', nextMaint:'2026-10-15'},
+  {id:'SZ-ESR-01', name:'Maninagar ESR', type:'Elevated (ESR)', zone:'SZ', cap:4800, level:39, inflow:4000, outflow:4500, turbidity:1.6, ph:6.8, chlorine:0.19, pump:'Running', status:'Low', waterAge:19, contam:'High', valve:'Throttled', scada:'Offline', lastMaint:'2026-04-20', nextMaint:'2026-07-20'},
+  {id:'SZ-GSR-01', name:'Vatva GSR', type:'Ground (GSR)', zone:'SZ', cap:9800, level:66, inflow:7600, outflow:7400, turbidity:1.2, ph:7.0, chlorine:0.27, pump:'Running', status:'Normal', waterAge:11, contam:'Medium', valve:'Open', scada:'Online', lastMaint:'2026-06-05', nextMaint:'2026-09-05'},
+  {id:'NWZ-ESR-01', name:'Ranip ESR', type:'Elevated (ESR)', zone:'NWZ', cap:4600, level:92, inflow:3900, outflow:3600, turbidity:0.5, ph:7.3, chlorine:0.36, pump:'Running', status:'Normal', waterAge:4, contam:'Low', valve:'Open', scada:'Online', lastMaint:'2026-08-10', nextMaint:'2026-11-10'},
+  {id:'NWZ-GSR-01', name:'Chandkheda GSR', type:'Ground (GSR)', zone:'NWZ', cap:8800, level:58, inflow:6900, outflow:6800, turbidity:0.9, ph:7.1, chlorine:0.30, pump:'Running', status:'Normal', waterAge:9, contam:'Low', valve:'Open', scada:'Online', lastMaint:'2026-07-08', nextMaint:'2026-10-08'},
+  {id:'SWZ-ESR-01', name:'Bopal ESR', type:'Elevated (ESR)', zone:'SWZ', cap:5400, level:34, inflow:4700, outflow:5200, turbidity:1.3, ph:6.9, chlorine:0.21, pump:'Running', status:'Low', waterAge:17, contam:'Medium', valve:'Throttled', scada:'Online', lastMaint:'2026-05-25', nextMaint:'2026-08-25'},
+  {id:'SWZ-GSR-01', name:'Sarkhej GSR', type:'Ground (GSR)', zone:'SWZ', cap:9200, level:69, inflow:7100, outflow:6950, turbidity:0.8, ph:7.2, chlorine:0.32, pump:'Running', status:'Normal', waterAge:8, contam:'Low', valve:'Open', scada:'Online', lastMaint:'2026-07-20', nextMaint:'2026-10-20'},
 ];
 
+/* roughness = Hazen-Williams C-factor (higher = smoother; new PVC/HDPE ~145-150, new DI ~130-136, aged CI drops
+   toward 90-100 as tuberculation builds up — C<100 flags a pipe whose internal roughness is materially eroding
+   capacity). pressureRating = pipe class working pressure in mwc (PN10≈100 mwc, PN16≈160 mwc trunk-rated). */
 const LINES = [
-  {id:'L-CZ-01', zone:'CZ', type:'Trunk Main', from:'Kotarpur WTP', to:'Khadia ESR', dia:900, material:'DI', length:6.2, input:8200, output:8050, pin:32, pout:28, vel:1.2, age:12, status:'Normal', method:'—'},
-  {id:'L-CZ-02', zone:'CZ', type:'Distribution Main', from:'Khadia ESR', to:'Raikhad', dia:450, material:'CI', length:3.1, input:3800, output:3120, pin:22, pout:9, vel:0.6, age:38, status:'Leakage Suspected', method:'Pressure drop + flow mismatch'},
-  {id:'L-CZ-03', zone:'CZ', type:'Distribution Main', from:'Raikhad GSR', to:'Kalupur / Dariapur', dia:300, material:'PVC', length:2.4, input:2600, output:2540, pin:18, pout:16, vel:0.9, age:9, status:'Normal', method:'—'},
-  {id:'L-NZ-01', zone:'NZ', type:'Trunk Main', from:'Raska WTP', to:'Sabarmati GSR', dia:780, material:'DI', length:10.2, input:9600, output:9450, pin:33, pout:29, vel:1.3, age:11, status:'Normal', method:'—'},
-  {id:'L-NZ-02', zone:'NZ', type:'Distribution Main', from:'Naranpura ESR', to:'Naranpura', dia:400, material:'PVC', length:3.0, input:5100, output:5000, pin:23, pout:20, vel:1.1, age:6, status:'Normal', method:'—'},
-  {id:'L-NZ-03', zone:'NZ', type:'Distribution Main', from:'Sabarmati GSR', to:'Chandkheda (N)', dia:350, material:'HDPE', length:2.8, input:3900, output:null, pin:22, pout:null, vel:null, age:4, status:'Sensor Offline', method:'Flow-meter comms lost'},
-  {id:'L-EZ-01', zone:'EZ', type:'Trunk Main', from:'Jaspur WTP', to:'Nikol GSR', dia:800, material:'DI', length:8.4, input:9500, output:9350, pin:30, pout:27, vel:1.3, age:10, status:'Normal', method:'—'},
-  {id:'L-EZ-02', zone:'EZ', type:'Distribution Main', from:'Vastral ESR', to:'Vastral / Amraiwadi', dia:400, material:'HDPE', length:3.6, input:4200, output:3300, pin:20, pout:7, vel:0.5, age:6, status:'Leakage Suspected', method:'Flow mismatch (NRW)'},
-  {id:'L-EZ-03', zone:'EZ', type:'Distribution Main', from:'Nikol GSR', to:'Odhav', dia:350, material:'CI', length:2.9, input:3600, output:3550, pin:19, pout:17, vel:0.8, age:22, status:'Normal', method:'—'},
-  {id:'L-WZ-01', zone:'WZ', type:'Trunk Main', from:'Raska WTP', to:'Vastrapur ESR', dia:850, material:'DI', length:9.1, input:8600, output:8480, pin:34, pout:30, vel:1.4, age:8, status:'Normal', method:'—'},
-  {id:'L-WZ-02', zone:'WZ', type:'Distribution Main', from:'Vastrapur ESR', to:'Bodakdev / Navrangpura', dia:400, material:'PVC', length:3.3, input:4600, output:4550, pin:24, pout:21, vel:1.0, age:5, status:'Normal', method:'—'},
-  {id:'L-WZ-03', zone:'WZ', type:'Distribution Main', from:'Thaltej GSR', to:'Thaltej', dia:380, material:'HDPE', length:2.7, input:4200, output:1800, pin:38, pout:6, vel:0.3, age:4, status:'Blockage Suspected', method:'Velocity drop + upstream pressure build-up'},
-  {id:'L-SZ-01', zone:'SZ', type:'Trunk Main', from:'Kotarpur WTP', to:'Vatva GSR', dia:820, material:'DI', length:7.6, input:7600, output:7480, pin:29, pout:26, vel:1.3, age:14, status:'Normal', method:'—'},
-  {id:'L-SZ-02', zone:'SZ', type:'Distribution Main', from:'Maninagar ESR', to:'Maninagar / Isanpur', dia:420, material:'CI', length:3.8, input:4000, output:3250, pin:21, pout:8, vel:0.6, age:35, status:'Leakage Suspected', method:'Pressure drop + flow mismatch'},
-  {id:'L-SZ-03', zone:'SZ', type:'Distribution Main', from:'Vatva GSR', to:'Vatva / Ghodasar', dia:360, material:'PVC', length:2.5, input:3600, output:3540, pin:18, pout:16, vel:0.9, age:7, status:'Normal', method:'—'},
-  {id:'L-NWZ-01', zone:'NWZ', type:'Trunk Main', from:'Kotarpur WTP', to:'Ranip ESR', dia:700, material:'DI', length:8.9, input:3900, output:3840, pin:27, pout:24, vel:1.0, age:9, status:'Normal', method:'—'},
-  {id:'L-NWZ-02', zone:'NWZ', type:'Distribution Main', from:'Ranip ESR', to:'Ranip / Gota', dia:380, material:'PVC', length:3.2, input:3900, output:3820, pin:21, pout:19, vel:0.9, age:5, status:'Normal', method:'—'},
-  {id:'L-NWZ-03', zone:'NWZ', type:'Distribution Main', from:'Chandkheda GSR', to:'Chandlodia', dia:340, material:'CI', length:2.6, input:3400, output:2850, pin:19, pout:9, vel:0.6, age:30, status:'Leakage Suspected', method:'Acoustic sensor + flow mismatch'},
-  {id:'L-SWZ-01', zone:'SWZ', type:'Trunk Main', from:'Raska WTP', to:'Sarkhej GSR', dia:760, material:'DI', length:11.4, input:7100, output:6980, pin:31, pout:27, vel:1.2, age:10, status:'Normal', method:'—'},
-  {id:'L-SWZ-02', zone:'SWZ', type:'Distribution Main', from:'Bopal ESR', to:'Bopal / South Bopal', dia:400, material:'HDPE', length:4.1, input:4700, output:4600, pin:20, pout:17, vel:1.0, age:4, status:'Normal', method:'—'},
-  {id:'L-SWZ-03', zone:'SWZ', type:'Distribution Main', from:'Sarkhej GSR', to:'Vejalpur', dia:360, material:'PVC', length:2.9, input:3400, output:3340, pin:19, pout:17, vel:0.9, age:6, status:'Normal', method:'—'},
+  {id:'L-CZ-01', zone:'CZ', type:'Trunk Main', from:'Kotarpur WTP', to:'Khadia ESR', dia:900, material:'DI', length:6.2, input:8200, output:8050, pin:32, pout:28, vel:1.2, age:12, status:'Normal', method:'—', roughness:132, pressureRating:160},
+  {id:'L-CZ-02', zone:'CZ', type:'Distribution Main', from:'Khadia ESR', to:'Raikhad', dia:450, material:'CI', length:3.1, input:3800, output:3120, pin:22, pout:9, vel:0.6, age:38, status:'Leakage Suspected', method:'Pressure drop + flow mismatch', roughness:92, pressureRating:100},
+  {id:'L-CZ-03', zone:'CZ', type:'Distribution Main', from:'Raikhad GSR', to:'Kalupur / Dariapur', dia:300, material:'PVC', length:2.4, input:2600, output:2540, pin:18, pout:16, vel:0.9, age:9, status:'Normal', method:'—', roughness:148, pressureRating:100},
+  {id:'L-NZ-01', zone:'NZ', type:'Trunk Main', from:'Raska WTP', to:'Sabarmati GSR', dia:780, material:'DI', length:10.2, input:9600, output:9450, pin:33, pout:29, vel:1.3, age:11, status:'Normal', method:'—', roughness:133, pressureRating:160},
+  {id:'L-NZ-02', zone:'NZ', type:'Distribution Main', from:'Naranpura ESR', to:'Naranpura', dia:400, material:'PVC', length:3.0, input:5100, output:5000, pin:23, pout:20, vel:1.1, age:6, status:'Normal', method:'—', roughness:149, pressureRating:100},
+  {id:'L-NZ-03', zone:'NZ', type:'Distribution Main', from:'Sabarmati GSR', to:'Chandkheda (N)', dia:350, material:'HDPE', length:2.8, input:3900, output:null, pin:22, pout:null, vel:null, age:4, status:'Sensor Offline', method:'Flow-meter comms lost', roughness:150, pressureRating:100},
+  {id:'L-EZ-01', zone:'EZ', type:'Trunk Main', from:'Jaspur WTP', to:'Nikol GSR', dia:800, material:'DI', length:8.4, input:9500, output:9350, pin:30, pout:27, vel:1.3, age:10, status:'Normal', method:'—', roughness:134, pressureRating:160},
+  {id:'L-EZ-02', zone:'EZ', type:'Distribution Main', from:'Vastral ESR', to:'Vastral / Amraiwadi', dia:400, material:'HDPE', length:3.6, input:4200, output:3300, pin:20, pout:7, vel:0.5, age:6, status:'Leakage Suspected', method:'Flow mismatch (NRW)', roughness:147, pressureRating:100},
+  {id:'L-EZ-03', zone:'EZ', type:'Distribution Main', from:'Nikol GSR', to:'Odhav', dia:350, material:'CI', length:2.9, input:3600, output:3550, pin:19, pout:17, vel:0.8, age:22, status:'Normal', method:'—', roughness:102, pressureRating:100},
+  {id:'L-WZ-01', zone:'WZ', type:'Trunk Main', from:'Raska WTP', to:'Vastrapur ESR', dia:850, material:'DI', length:9.1, input:8600, output:8480, pin:34, pout:30, vel:1.4, age:8, status:'Normal', method:'—', roughness:136, pressureRating:160},
+  {id:'L-WZ-02', zone:'WZ', type:'Distribution Main', from:'Vastrapur ESR', to:'Bodakdev / Navrangpura', dia:400, material:'PVC', length:3.3, input:4600, output:4550, pin:24, pout:21, vel:1.0, age:5, status:'Normal', method:'—', roughness:149, pressureRating:100},
+  {id:'L-WZ-03', zone:'WZ', type:'Distribution Main', from:'Thaltej GSR', to:'Thaltej', dia:380, material:'HDPE', length:2.7, input:4200, output:1800, pin:38, pout:6, vel:0.3, age:4, status:'Blockage Suspected', method:'Velocity drop + upstream pressure build-up', roughness:150, pressureRating:100},
+  {id:'L-SZ-01', zone:'SZ', type:'Trunk Main', from:'Kotarpur WTP', to:'Vatva GSR', dia:820, material:'DI', length:7.6, input:7600, output:7480, pin:29, pout:26, vel:1.3, age:14, status:'Normal', method:'—', roughness:130, pressureRating:160},
+  {id:'L-SZ-02', zone:'SZ', type:'Distribution Main', from:'Maninagar ESR', to:'Maninagar / Isanpur', dia:420, material:'CI', length:3.8, input:4000, output:3250, pin:21, pout:8, vel:0.6, age:35, status:'Leakage Suspected', method:'Pressure drop + flow mismatch', roughness:94, pressureRating:100},
+  {id:'L-SZ-03', zone:'SZ', type:'Distribution Main', from:'Vatva GSR', to:'Vatva / Ghodasar', dia:360, material:'PVC', length:2.5, input:3600, output:3540, pin:18, pout:16, vel:0.9, age:7, status:'Normal', method:'—', roughness:147, pressureRating:100},
+  {id:'L-NWZ-01', zone:'NWZ', type:'Trunk Main', from:'Kotarpur WTP', to:'Ranip ESR', dia:700, material:'DI', length:8.9, input:3900, output:3840, pin:27, pout:24, vel:1.0, age:9, status:'Normal', method:'—', roughness:135, pressureRating:160},
+  {id:'L-NWZ-02', zone:'NWZ', type:'Distribution Main', from:'Ranip ESR', to:'Ranip / Gota', dia:380, material:'PVC', length:3.2, input:3900, output:3820, pin:21, pout:19, vel:0.9, age:5, status:'Normal', method:'—', roughness:149, pressureRating:100},
+  {id:'L-NWZ-03', zone:'NWZ', type:'Distribution Main', from:'Chandkheda GSR', to:'Chandlodia', dia:340, material:'CI', length:2.6, input:3400, output:2850, pin:19, pout:9, vel:0.6, age:30, status:'Leakage Suspected', method:'Acoustic sensor + flow mismatch', roughness:97, pressureRating:100},
+  {id:'L-SWZ-01', zone:'SWZ', type:'Trunk Main', from:'Raska WTP', to:'Sarkhej GSR', dia:760, material:'DI', length:11.4, input:7100, output:6980, pin:31, pout:27, vel:1.2, age:10, status:'Normal', method:'—', roughness:134, pressureRating:160},
+  {id:'L-SWZ-02', zone:'SWZ', type:'Distribution Main', from:'Bopal ESR', to:'Bopal / South Bopal', dia:400, material:'HDPE', length:4.1, input:4700, output:4600, pin:20, pout:17, vel:1.0, age:4, status:'Normal', method:'—', roughness:150, pressureRating:100},
+  {id:'L-SWZ-03', zone:'SWZ', type:'Distribution Main', from:'Sarkhej GSR', to:'Vejalpur', dia:360, material:'PVC', length:2.9, input:3400, output:3340, pin:19, pout:17, vel:0.9, age:6, status:'Normal', method:'—', roughness:148, pressureRating:100},
 ];
 
 /* Zone positions for the compact Overview schematic — 3 rows, all 7 zones, roomy viewBox so nothing clips. */
@@ -295,6 +382,71 @@ const minSupplyZone = ZONE_STATS.reduce((a,b)=>b.deliveredMLD<a.deliveredMLD?b:a
 const maxLPCDZone = ZONE_STATS.reduce((a,b)=>b.lpcd>a.lpcd?b:a);
 const minLPCDZone = ZONE_STATS.reduce((a,b)=>b.lpcd<a.lpcd?b:a);
 
+/* =========================================================
+   KEY-PARAMETER AGGREGATES — feeds the Overview "Key parameters" panel
+   and the highlighted fields on each individual tab.
+   ========================================================= */
+const CL_NORM_MIN = 0.2;           // CPHEEO/IS 10500 minimum free residual chlorine at consumer end, mg/L
+const TURB_NORM_MAX = 1.0;         // BIS acceptable turbidity limit, NTU
+const PH_NORM = [6.5, 8.5];        // BIS acceptable pH range
+const ROUGHNESS_RISK_MAX = 100;    // Hazen-Williams C below this = materially roughened / due for relining
+
+const avgChlorine = TANKS.reduce((s,t)=>s+t.chlorine,0)/TANKS.length;
+const chlorineBelowNorm = TANKS.filter(t=>t.chlorine<CL_NORM_MIN).length;
+const avgTurbidity = TANKS.reduce((s,t)=>s+t.turbidity,0)/TANKS.length;
+const turbidityAboveNorm = TANKS.filter(t=>t.turbidity>TURB_NORM_MAX).length;
+const phMin = Math.min(...TANKS.map(t=>t.ph)), phMax = Math.max(...TANKS.map(t=>t.ph));
+const phOutOfRange = TANKS.filter(t=>t.ph<PH_NORM[0]||t.ph>PH_NORM[1]).length;
+const contamHigh = TANKS.filter(t=>t.contam==='High').length;
+const contamMedium = TANKS.filter(t=>t.contam==='Medium').length;
+const avgWaterAge = TANKS.reduce((s,t)=>s+t.waterAge,0)/TANKS.length;
+const maxWaterAgeTank = TANKS.reduce((a,b)=>b.waterAge>a.waterAge?b:a);
+
+const scadaOfflineTanks = TANKS.filter(t=>t.scada==='Offline').length;
+const sensorOfflineLines = LINES.filter(l=>l.status==='Sensor Offline').length;
+const scadaTotalAssets = TANKS.length + LINES.length;
+const scadaOnlinePct = ((scadaTotalAssets-scadaOfflineTanks-sensorOfflineLines)/scadaTotalAssets*100);
+const pressureLoggedPct = (validLines.length/LINES.length*100);
+const valveThrottled = TANKS.filter(t=>t.valve==='Throttled').length;
+const TODAY = new Date('2026-09-09T00:00:00');
+const maintOverdueTanks = TANKS.filter(t=>new Date(t.nextMaint)<TODAY);
+
+const pipeDiaMin = Math.min(...LINES.map(l=>l.dia)), pipeDiaMax = Math.max(...LINES.map(l=>l.dia));
+const pipeMaterialCounts = LINES.reduce((m,l)=>{ m[l.material]=(m[l.material]||0)+1; return m; }, {});
+const totalPipeLengthKm = LINES.reduce((s,l)=>s+l.length,0);
+const avgPipeAge = LINES.reduce((s,l)=>s+l.age,0)/LINES.length;
+const oldestLine = LINES.reduce((a,b)=>b.age>a.age?b:a);
+const avgRoughness = LINES.reduce((s,l)=>s+l.roughness,0)/LINES.length;
+const roughLines = LINES.filter(l=>l.roughness<ROUGHNESS_RISK_MAX);
+const pn16Count = LINES.filter(l=>l.pressureRating===160).length;
+const pn10Count = LINES.filter(l=>l.pressureRating===100).length;
+
+const cityAvgDemandMLD = totalPopulation*135/1e6;
+const totalPeakHourDemandMLD = ZONES.reduce((s,z)=>s+(z.population*135/1e6)*z.peakFactor,0);
+const avgPeakFactor = ZONES.reduce((s,z)=>s+z.peakFactor,0)/ZONES.length;
+const seasonalVarMin = Math.min(...ZONES.map(z=>z.seasonalVariationPct)), seasonalVarMax = Math.max(...ZONES.map(z=>z.seasonalVariationPct));
+const totalFireFlowLPS = ZONES.reduce((s,z)=>s+z.fireFlowLPS,0);
+
+const sourceCapacityTotalMLD = Object.values(WTP_INFO).reduce((s,w)=>s+w.capacityMLD,0);
+const sourceOutputTotalMLD = totalProductionKLD/1000;
+const sourceUtilizationPct = (sourceOutputTotalMLD/sourceCapacityTotalMLD*100);
+const avgReliabilityPct = Object.values(WTP_INFO).reduce((s,w)=>s+w.reliabilityPct,0)/Object.values(WTP_INFO).length;
+const minReserveWTP = Object.entries(WTP_INFO).reduce((a,[name,w])=>w.reserveHrs<a.w.reserveHrs?{name,w}:a, {name:Object.keys(WTP_INFO)[0], w:Object.values(WTP_INFO)[0]});
+const minReliabilityWTP = Object.entries(WTP_INFO).reduce((a,[name,w])=>w.reliabilityPct<a.w.reliabilityPct?{name,w}:a, {name:Object.keys(WTP_INFO)[0], w:Object.values(WTP_INFO)[0]});
+
+/* Economics & sustainability — city-wide. Capital value and opex are indicative planning-level figures for a
+   network of this size (~₹4,200 Cr replacement value class-I city); energy intensity and equity index are
+   derived from the live operating figures above so they move with the rest of the demo data. */
+const ECONOMICS = {
+  capitalAssetValueCr: 4210,
+  annualOpexCr: 63,
+  energyKwhPerML: 412,
+};
+const totalEnergyMWhPerDay = (ECONOMICS.energyKwhPerML*sourceOutputTotalMLD)/1000;
+const assetsDueReplacementPct = (roughLines.length/LINES.length*100);
+const costPerKL = (ECONOMICS.annualOpexCr*1e7)/(totalOutflow*365);
+const equityIndexPct = (minLPCDZone.lpcd/maxLPCDZone.lpcd*100);
+
 /* Build unified alert list from tanks + lines */
 function buildAlerts(){
   const alerts = [];
@@ -333,6 +485,13 @@ function levelColor(pct){
   return 'var(--teal)';
 }
 function sevColor(sev){ return sev==='critical' ? 'var(--red)' : sev==='warning' ? 'var(--amber)' : 'var(--teal)'; }
+
+/* Uniform label/value block for dense asset detail — used on tank cards and inside the zone drawer so every
+   reading lines up in a clean grid instead of running on as inline "Label value" text. */
+function spec(label, value, color, unit, wide){
+  return `<div class="spec${wide?' span2':''}"><div class="specl">${label}</div><div class="specv"${color?` style="color:${color};"`:''}>${value}${unit?`<span class="u">${unit}</span>`:''}</div></div>`;
+}
+function specGrid(items, tight){ return `<div class="specgrid${tight?' tight':''}">${items.join('')}</div>`; }
 
 /* =========================================================
    NAVIGATION
@@ -384,6 +543,9 @@ function openWtpDrawer(name, feedLines, totalFeed){
       <span style="font-family:var(--mono);">${fmt(l.input)} KLD</span>
     </div>`;
   }).join('');
+  const w = WTP_INFO[name] || {capacityMLD:null, reliabilityPct:null, reserveHrs:null};
+  const outputMLD = totalFeed/1000;
+  const util = w.capacityMLD ? (outputMLD/w.capacityMLD*100) : null;
   document.getElementById('zoneDrawer').innerHTML = `
     <div class="drawer-head">
       <div><div style="font-size:16px; font-weight:600;">${name}</div><div style="font-size:11.5px; color:var(--text-dim); margin-top:2px;">Water treatment plant</div></div>
@@ -391,7 +553,10 @@ function openWtpDrawer(name, feedLines, totalFeed){
     </div>
     <div class="drawer-body">
       <div class="kpirow" style="grid-template-columns:1fr 1fr;">
-        <div class="kpi"><div class="lbl">Total output</div><div class="val teal">${fmt(totalFeed/1000,1)}<span class="unit">MLD</span></div></div>
+        <div class="kpi"><div class="lbl">Capacity</div><div class="val">${fmt(w.capacityMLD,1)}<span class="unit">MLD</span></div></div>
+        <div class="kpi"><div class="lbl">Output</div><div class="val teal">${fmt(outputMLD,1)}<span class="unit">MLD</span></div><div class="delta">${util!==null?fmt(util,1)+'% utilised':''}</div></div>
+        <div class="kpi"><div class="lbl">Reliability</div><div class="val ${w.reliabilityPct<97?'amber':'green'}">${w.reliabilityPct}<span class="unit">%</span></div></div>
+        <div class="kpi"><div class="lbl">Reserve supply</div><div class="val ${w.reserveHrs<6?'red':''}">${w.reserveHrs}<span class="unit">h</span></div></div>
         <div class="kpi"><div class="lbl">Trunk mains fed</div><div class="val">${feedLines.length}</div></div>
       </div>
       <div class="sectiontitle">Zones supplied</div>
@@ -417,17 +582,18 @@ function zoneDrawerContent(zid){
   const zl = linesIn(zid);
   const za = ALERTS.filter(a=>a.zone===zid);
   const deliveredMLD = zoneDeliveredKLD(zid)/1000;
-  const yesterdayMLD = zoneYesterdayDeliveredKLD(zid);
+  const yesterdayMLD = zoneYesterdayDeliveredKLD(zid)/1000;
   const changePct = YESTERDAY_CHANGE_PCT[zid]||0;
   const lpcd = zoneLPCD(zid);
   const lossKLD = zoneLossKLD(zid);
   const demandMLD = z.population*135/1e6;
+  const peakMLD = demandMLD*z.peakFactor;
 
   const badges = [];
-  if(zid===maxSupplyZone.id) badges.push(`<span class="drawer-badge" style="background:var(--green-bg); color:#7BE8A0;">Most supplied area</span>`);
-  if(zid===minSupplyZone.id) badges.push(`<span class="drawer-badge" style="background:var(--amber-bg); color:#FFCB6B;">Least supplied area</span>`);
-  if(zid===maxLPCDZone.id) badges.push(`<span class="drawer-badge" style="background:var(--green-bg); color:#7BE8A0;">Best per-person supply</span>`);
-  if(zid===minLPCDZone.id) badges.push(`<span class="drawer-badge" style="background:var(--red-bg); color:#FF8A8A;">Worst per-person supply</span>`);
+  if(zid===maxSupplyZone.id) badges.push(`<span class="drawer-badge" style="background:var(--green-bg); color:var(--green-fg);">Most supplied area</span>`);
+  if(zid===minSupplyZone.id) badges.push(`<span class="drawer-badge" style="background:var(--amber-bg); color:var(--amber-fg);">Least supplied area</span>`);
+  if(zid===maxLPCDZone.id) badges.push(`<span class="drawer-badge" style="background:var(--green-bg); color:var(--green-fg);">Best per-person supply</span>`);
+  if(zid===minLPCDZone.id) badges.push(`<span class="drawer-badge" style="background:var(--red-bg); color:var(--red-fg);">Worst per-person supply</span>`);
 
   return `
     <div class="drawer-head">
@@ -446,28 +612,56 @@ function zoneDrawerContent(zid){
         <div class="kpi"><div class="lbl">Per-capita supply</div><div class="val ${lpcd<100?'red':lpcd<135?'amber':'green'}">${lpcd}<span class="unit">LPCD</span></div></div>
         <div class="kpi"><div class="lbl">Water loss (this zone)</div><div class="val red">${fmt(lossKLD)}<span class="unit">KLD</span></div></div>
         <div class="kpi"><div class="lbl">Active alerts</div><div class="val ${za.length?'red':'green'}">${za.length}</div></div>
+        <div class="kpi"><div class="lbl">Peak-hour demand</div><div class="val ${peakMLD>deliveredMLD?'amber':''}">${fmt(peakMLD,1)}<span class="unit">MLD ×${z.peakFactor}</span></div></div>
+        <div class="kpi"><div class="lbl">Fire-flow / seasonal</div><div class="val">${z.fireFlowLPS}<span class="unit">L/s</span></div><div class="delta">+${z.seasonalVariationPct}% summer peak</div></div>
       </div>
 
       <div class="sectiontitle">Tank levels (${zt.length})</div>
-      ${zt.map(t=>`
-        <div class="drawer-tankrow">
-          <div class="mini-gauge"><div style="height:${t.level}%; background:${levelColor(t.level)};"></div></div>
+      ${zt.map(t=>{
+        const contamCol = t.contam==='High'?'var(--red)':t.contam==='Medium'?'var(--amber)':'var(--green)';
+        const contamBg = t.contam==='High'?'var(--red-bg)':t.contam==='Medium'?'var(--amber-bg)':'var(--green-bg)';
+        const contamFg = t.contam==='High'?'var(--red-fg)':t.contam==='Medium'?'var(--amber-fg)':'var(--green-fg)';
+        const overdue = new Date(t.nextMaint) < TODAY;
+        return `
+        <div class="drawer-tankrow" style="align-items:flex-start;">
+          <div class="mini-gauge" style="margin-top:3px;"><div style="height:${t.level}%; background:${levelColor(t.level)};"></div></div>
           <div class="tinfo">
-            <div style="display:flex; justify-content:space-between;"><b>${t.name}</b><span style="font-family:var(--mono); color:${levelColor(t.level)};">${t.level}%</span></div>
-            <div class="tstats">${t.id} · ${t.type} · Cap ${fmt(t.cap)} KL · In ${fmt(t.inflow)} / Out ${fmt(t.outflow)} KLD</div>
-            <div class="tstats">Turbidity ${t.turbidity} NTU · pH ${t.ph} · Cl ${t.chlorine} mg/L · ${statusBadge(t.status)}</div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline;"><b>${t.name}</b><span style="font-family:var(--mono); color:${levelColor(t.level)};">${t.level}%</span></div>
+            <div class="tstats" style="margin-bottom:6px;">${t.id} · ${t.type}</div>
+            <div class="chiprow">
+              ${statusBadge(t.status)}
+              <span class="badge" style="background:${contamBg}; color:${contamFg};"><span class="bdot"></span>${t.contam} risk</span>
+            </div>
+            ${specGrid([
+              spec('Capacity', fmt(t.cap), null, 'KL'),
+              spec('In / Out', `${fmt(t.inflow)} / ${fmt(t.outflow)}`, null, 'KLD'),
+              spec('Turbidity', t.turbidity, t.turbidity>TURB_NORM_MAX?'var(--amber)':null, 'NTU'),
+              spec('pH / Chlorine', `${t.ph} / ${t.chlorine}`, t.chlorine<CL_NORM_MIN?'var(--red)':null, 'mg/L'),
+              spec('Water age', t.waterAge, t.waterAge>16?'var(--amber)':null, 'h'),
+              spec('Valve', t.valve, t.valve==='Throttled'?'var(--amber)':null),
+              spec('SCADA link', t.scada, t.scada==='Offline'?'var(--red)':'var(--green)'),
+              spec('Next maintenance', t.nextMaint, overdue?'var(--red)':null, overdue?'overdue':''),
+            ], true)}
           </div>
-        </div>`).join('')}
+        </div>`;
+      }).join('')}
 
       <div class="sectiontitle">Lines in this zone (${zl.length})</div>
       ${zl.map(l=>{
         const nrw = l.output===null ? null : ((l.input-l.output)/l.input*100);
-        return `<div style="padding:9px 0; border-bottom:1px solid var(--line-soft); font-size:12px;">
-          <div style="display:flex; justify-content:space-between;"><b style="font-weight:500;">${l.id}</b>${statusBadge(l.status)}</div>
+        const nrwCol = nrw===null?null:nrw>15?'var(--red)':nrw>8?'var(--amber)':'var(--green)';
+        return `<div style="padding:12px 0; border-bottom:1px solid var(--line-soft);">
+          <div style="display:flex; justify-content:space-between; align-items:baseline;"><b style="font-weight:600; font-size:12.5px;">${l.id}</b>${statusBadge(l.status)}</div>
           <div style="color:var(--text-dim); font-size:11.5px; margin-top:2px;">${l.from} → ${l.to}</div>
-          <div style="font-family:var(--mono); font-size:10.5px; color:var(--text-mute); margin-top:3px;">
-            ${l.dia}mm ${l.material} · In ${fmt(l.input)} / Out ${l.output===null?'—':fmt(l.output)} KLD${nrw!==null?` · NRW ${fmt(nrw,1)}%`:''} · P ${l.pin}${l.pout===null?'':'/'+l.pout} mwc
-          </div>
+          ${specGrid([
+            spec('Diameter', l.dia, null, 'mm'),
+            spec('Material', l.material),
+            spec('In / Out', `${fmt(l.input)} / ${l.output===null?'—':fmt(l.output)}`, null, 'KLD'),
+            spec('NRW', nrw===null?'—':fmt(nrw,1), nrwCol, nrw===null?'':'%'),
+            spec('Pressure in/out', `${l.pin}${l.pout===null?'':'/'+l.pout}`, null, `mwc (PN${l.pressureRating})`),
+            spec('Roughness (C)', l.roughness, l.roughness<ROUGHNESS_RISK_MAX?'var(--red)':null),
+            spec('Age / Length', `${l.age} / ${l.length}`, null, 'yr · km'),
+          ], true)}
         </div>`;
       }).join('')}
 
@@ -509,6 +703,11 @@ function viewOverview(){
     <div class="kpi"><div class="lbl">Non-revenue water (NRW)</div><div class="val ${overallNRWpct>10?'amber':'green'}">${fmt(overallNRWpct,1)}<span class="unit">%</span></div><div class="delta">distribution-main flow balance</div></div>
     <div class="kpi"><div class="lbl">Active alerts</div><div class="val red">${ALERTS.length}</div><div class="delta">${critAlerts} critical · ${ALERTS.length-critAlerts} warning</div></div>
     <div class="kpi"><div class="lbl">Per-capita supply</div><div class="val">${fmt(perCapitaLPCD)}<span class="unit">LPCD</span></div><div class="delta">against 135 LPCD service norm</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Key operating parameters <span class="cnt">water quality · operations · pipes · demand · source · economics</span></h2>
+    ${keyParamsPanels()}
   </div>
 
   <div class="grid2">
@@ -569,6 +768,102 @@ function viewOverview(){
   `;
 }
 
+/* =========================================================
+   KEY PARAMETERS — 6-category summary shown on the Overview tab.
+   Each card's dot rolls up to the worst state of its own rows (ok/warn/bad); each row is independently
+   colour-coded against its own engineering norm so the reading that needs attention is visible at a glance.
+   ========================================================= */
+function paramCard(title, dotState, rowsHtml){
+  const dotCol = dotState==='bad' ? 'var(--red)' : dotState==='warn' ? 'var(--amber)' : 'var(--teal)';
+  return `<div class="paramcard">
+    <div class="pctitle"><span class="pcdot" style="background:${dotCol}"></span>${title}</div>
+    ${rowsHtml}
+  </div>`;
+}
+function prow(label, value, cls, note){
+  return `<div class="paramrow"><span class="plbl">${label}</span><span class="pval ${cls||'neutral'}">${value}${note?`<span class="pnote">${note}</span>`:''}</span></div>`;
+}
+function worst(...states){ return states.includes('bad') ? 'bad' : states.includes('warn') ? 'warn' : 'ok'; }
+
+function keyParamsPanels(){
+  // 1. Water quality
+  const clCls = chlorineBelowNorm>0 ? 'bad' : 'ok';
+  const turbCls = turbidityAboveNorm>0 ? 'warn' : 'ok';
+  const phCls = phOutOfRange>0 ? 'bad' : 'ok';
+  const contamCls = contamHigh>0 ? 'bad' : contamMedium>0 ? 'warn' : 'ok';
+  const wqState = worst(clCls, turbCls, phCls, contamCls);
+  const wq = paramCard('Water quality', wqState,
+    prow('Residual chlorine (avg)', `${fmt(avgChlorine,2)} mg/L`, clCls, `norm ≥${CL_NORM_MIN.toFixed(2)}${chlorineBelowNorm?` · ${chlorineBelowNorm} below`:''}`) +
+    prow('Turbidity (avg)', `${fmt(avgTurbidity,2)} NTU`, turbCls, `norm ≤${TURB_NORM_MAX.toFixed(1)}${turbidityAboveNorm?` · ${turbidityAboveNorm} above`:''}`) +
+    prow('pH (range)', `${fmt(phMin,1)}–${fmt(phMax,1)}`, phCls, `norm ${PH_NORM[0]}–${PH_NORM[1]}`) +
+    prow('Contamination risk', contamHigh>0?`${contamHigh} High`:contamMedium>0?`${contamMedium} Medium`:'All Low', contamCls, contamHigh>0&&contamMedium>0?`· ${contamMedium} Medium`:'') +
+    prow('Water age (avg / max)', `${fmt(avgWaterAge,1)} h / ${maxWaterAgeTank.waterAge} h`, avgWaterAge>16?'warn':'ok', maxWaterAgeTank.name)
+  );
+
+  // 2. Operations
+  const scadaCls = (scadaOfflineTanks+sensorOfflineLines)>0 ? 'bad' : 'ok';
+  const pressCls = pressureLoggedPct<100 ? 'warn' : 'ok';
+  const valveCls = valveThrottled>3 ? 'warn' : valveThrottled>0 ? 'warn' : 'ok';
+  const maintCls = maintOverdueTanks.length>0 ? 'bad' : 'ok';
+  const opState = worst(scadaCls, pressCls, valveCls, maintCls);
+  const ops = paramCard('Operations', opState,
+    prow('SCADA / sensors online', `${fmt(scadaOnlinePct,1)}%`, scadaCls, (scadaOfflineTanks+sensorOfflineLines)?`${scadaOfflineTanks+sensorOfflineLines} offline`:`${scadaTotalAssets} of ${scadaTotalAssets}`) +
+    prow('Pressure &amp; flow monitoring', `${fmt(pressureLoggedPct,1)}%`, pressCls, `${validLines.length}/${LINES.length} lines reporting`) +
+    prow('Valve control', `${valveThrottled} throttled`, valveCls, `of ${TANKS.length} outlet valves`) +
+    prow('Maintenance schedule', maintOverdueTanks.length ? `${maintOverdueTanks.length} overdue` : 'On schedule', maintCls, `${TANKS.length} assets tracked`)
+  );
+
+  // 3. Pipe characteristics
+  const roughCls = roughLines.length>0 ? 'warn' : 'ok';
+  const matStr = Object.entries(pipeMaterialCounts).map(([m,c])=>`${m} ${c}`).join(' · ');
+  const pipeState = worst(roughCls);
+  const pipe = paramCard('Pipe characteristics', pipeState,
+    prow('Diameter (range)', `${pipeDiaMin}–${pipeDiaMax} mm`, 'neutral') +
+    prow('Material mix', matStr, (pipeMaterialCounts['CI']||0)>0?'warn':'neutral') +
+    prow('Age (avg / oldest)', `${fmt(avgPipeAge,1)} / ${oldestLine.age} yr`, oldestLine.age>30?'warn':'neutral', oldestLine.id) +
+    prow('Roughness (avg C)', fmt(avgRoughness,0), roughCls, roughLines.length?`${roughLines.length} lines C<${ROUGHNESS_RISK_MAX}`:'design range') +
+    prow('Length (total)', `${fmt(totalPipeLengthKm,1)} km`, 'neutral') +
+    prow('Pressure rating', `PN16 ×${pn16Count} · PN10 ×${pn10Count}`, 'neutral', 'trunk / distribution class')
+  );
+
+  // 4. Demand
+  const peakCls = totalPeakHourDemandMLD>sourceCapacityTotalMLD ? 'bad' : totalPeakHourDemandMLD>sourceOutputTotalMLD ? 'warn' : 'ok';
+  const demandState = worst(peakCls);
+  const demand = paramCard('Demand', demandState,
+    prow('Population served', fmt(totalPopulation), 'neutral') +
+    prow('Per-capita use', `${perCapitaLPCD} LPCD`, perCapitaLPCD<135?'warn':'ok', 'norm 135 LPCD') +
+    prow('Peak-hour demand', `${fmt(totalPeakHourDemandMLD,1)} MLD`, peakCls, `×${fmt(avgPeakFactor,2)} avg factor`) +
+    prow('Seasonal variation', `+${seasonalVarMin}–${seasonalVarMax}%`, 'neutral', 'summer peak vs annual avg') +
+    prow('Fire-flow demand', `${fmt(totalFireFlowLPS)} L/s`, 'neutral', 'design reserve, IS 3844')
+  );
+
+  // 5. Water source & supply
+  const utilCls = sourceUtilizationPct>90 ? 'warn' : 'ok';
+  const relCls = minReliabilityWTP.w.reliabilityPct<97 ? 'warn' : 'ok';
+  const reserveCls = minReserveWTP.w.reserveHrs<6 ? 'bad' : 'ok';
+  const sourceState = worst(utilCls, relCls, reserveCls);
+  const source = paramCard('Water source &amp; supply', sourceState,
+    prow('Source capacity', `${fmt(sourceCapacityTotalMLD,1)} MLD`, 'neutral', `${Object.keys(WTP_INFO).length} WTPs`) +
+    prow('Treatment-plant output', `${fmt(sourceOutputTotalMLD,1)} MLD`, utilCls, `${fmt(sourceUtilizationPct,1)}% utilised`) +
+    prow('Reliability (avg)', `${fmt(avgReliabilityPct,1)}%`, relCls, `lowest ${minReliabilityWTP.name.replace(' WTP','')} ${minReliabilityWTP.w.reliabilityPct}%`) +
+    prow('Reserve supply (min)', `${minReserveWTP.w.reserveHrs} h`, reserveCls, minReserveWTP.name)
+  );
+
+  // 6. Economics & sustainability
+  const replCls = assetsDueReplacementPct>15 ? 'warn' : 'ok';
+  const equityCls = equityIndexPct<70 ? 'bad' : equityIndexPct<85 ? 'warn' : 'ok';
+  const econState = worst(replCls, equityCls);
+  const econ = paramCard('Economics &amp; sustainability', econState,
+    prow('Capital cost', `₹${fmt(ECONOMICS.capitalAssetValueCr)} Cr`, 'neutral', 'network asset value') +
+    prow('Operating cost', `₹${fmt(ECONOMICS.annualOpexCr)} Cr/yr`, 'neutral', `₹${fmt(costPerKL,2)}/KL`) +
+    prow('Energy use', `${fmt(totalEnergyMWhPerDay,1)} MWh/day`, 'neutral', `${ECONOMICS.energyKwhPerML} kWh/ML`) +
+    prow('Lifecycle replacement', `${fmt(assetsDueReplacementPct,1)}%`, replCls, 'of network due') +
+    prow('Equity of access', `${fmt(equityIndexPct,0)}%`, equityCls, 'min ÷ max zone LPCD')
+  );
+
+  return `<div class="paramgrid">${wq}${ops}${pipe}${demand}${source}${econ}</div>`;
+}
+
 function schematicSVG(){
   // WTP nodes feeding zone hubs — abstract flow schematic, all 7 zones in 3 rows so nothing clips
   const wtpPos = [{x:150,y:30,name:'Jaspur WTP'},{x:430,y:30,name:'Raska WTP'},{x:660,y:30,name:'Kotarpur WTP'}];
@@ -580,26 +875,26 @@ function schematicSVG(){
       const wtp = wtpPos.find(w=>w.name===l.from) || wtpPos[0];
       const zp = ZONEPOS_OVERVIEW[zid];
       const zoneStatus = worstStatusForZone(zid);
-      const col = zoneStatus==='critical' ? '#F14747' : zoneStatus==='warning' ? '#F5A524' : '#2DD4BF';
+      const col = zoneStatus==='critical' ? 'var(--red)' : zoneStatus==='warning' ? 'var(--amber)' : 'var(--teal)';
       s += `<path d="M${wtp.x} ${wtp.y+16} C ${wtp.x} ${(wtp.y+zp.y)/2}, ${zp.x} ${(wtp.y+zp.y)/2}, ${zp.x} ${zp.y-30}" fill="none" stroke="${col}" stroke-width="1.6" opacity="0.55" stroke-dasharray="4 3"/>`;
     });
   });
   wtpPos.forEach(w=>{
-    s += `<rect x="${w.x-52}" y="${w.y-16}" width="104" height="32" rx="6" fill="#0F1E2E" stroke="#38BDF8" stroke-width="1"/>`;
-    s += `<text x="${w.x}" y="${w.y+4}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#DCE7F2">${w.name}</text>`;
+    s += `<rect x="${w.x-52}" y="${w.y-16}" width="104" height="32" rx="6" fill="var(--panel)" stroke="var(--sky)" stroke-width="1"/>`;
+    s += `<text x="${w.x}" y="${w.y+4}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--text)">${w.name}</text>`;
   });
   zoneList.forEach(zid=>{
     const zp = ZONEPOS_OVERVIEW[zid];
     const z = zoneOf(zid);
     const zoneStatus = worstStatusForZone(zid);
-    const col = zoneStatus==='critical' ? '#F14747' : zoneStatus==='warning' ? '#F5A524' : '#2DD4BF';
+    const col = zoneStatus==='critical' ? 'var(--red)' : zoneStatus==='warning' ? 'var(--amber)' : 'var(--teal)';
     const zTanks = tanksIn(zid);
     const avgLvl = Math.round(zTanks.reduce((s,t)=>s+t.level,0)/zTanks.length);
     s += `<g style="cursor:pointer" onclick="openZoneDrawer('${zid}')">`;
-    s += `<circle cx="${zp.x}" cy="${zp.y}" r="32" fill="#13253A" stroke="${col}" stroke-width="1.6"/>`;
-    s += `<text x="${zp.x}" y="${zp.y-5}" text-anchor="middle" font-family="IBM Plex Sans" font-weight="600" font-size="11" fill="#DCE7F2">${zid}</text>`;
+    s += `<circle cx="${zp.x}" cy="${zp.y}" r="32" fill="var(--panel2)" stroke="${col}" stroke-width="1.6"/>`;
+    s += `<text x="${zp.x}" y="${zp.y-5}" text-anchor="middle" font-family="IBM Plex Sans" font-weight="600" font-size="11" fill="var(--text)">${zid}</text>`;
     s += `<text x="${zp.x}" y="${zp.y+12}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="${col}">${avgLvl}%</text>`;
-    s += `<text x="${zp.x}" y="${zp.y+50}" text-anchor="middle" font-family="IBM Plex Sans" font-size="9.5" fill="#8AA0B8">${z.name}</text>`;
+    s += `<text x="${zp.x}" y="${zp.y+50}" text-anchor="middle" font-family="IBM Plex Sans" font-size="9.5" fill="var(--text-dim)">${z.name}</text>`;
     s += `</g>`;
   });
   s += `</svg>`;
@@ -628,13 +923,13 @@ function zoneBarChart(){
           <span>${r.z.name}</span>
           <span style="font-family:var(--mono); color:var(--text-dim);">supply ${fmt(r.supplyMld,1)} / demand ${fmt(r.demandMld,1)} MLD</span>
         </div>
-        <div style="position:relative; height:14px; background:#08121C; border-radius:4px; overflow:hidden;">
-          <div style="position:absolute; left:0; top:0; bottom:0; width:${(r.demandMld/max*100)}%; background:#1E3450;"></div>
-          <div style="position:absolute; left:0; top:0; bottom:0; width:${(r.supplyMld/max*100)}%; background:${r.supplyMld<r.demandMld?'#F5A524':'#2DD4BF'};"></div>
+        <div style="position:relative; height:14px; background:var(--track); border-radius:4px; overflow:hidden;">
+          <div style="position:absolute; left:0; top:0; bottom:0; width:${(r.demandMld/max*100)}%; background:var(--line);"></div>
+          <div style="position:absolute; left:0; top:0; bottom:0; width:${(r.supplyMld/max*100)}%; background:${r.supplyMld<r.demandMld?'var(--amber)':'var(--teal)'};"></div>
         </div>
       </div>`).join('')}
   </div>
-  <div class="legend"><span><i style="background:#2DD4BF"></i>Supply (meeting demand)</span><span><i style="background:#F5A524"></i>Supply (deficit)</span><span><i style="background:#1E3450"></i>Demand baseline</span></div>`;
+  <div class="legend"><span><i style="background:var(--teal)"></i>Supply (meeting demand)</span><span><i style="background:var(--amber)"></i>Supply (deficit)</span><span><i style="background:var(--line)"></i>Demand baseline</span></div>`;
 }
 
 /* =========================================================
@@ -647,6 +942,8 @@ function viewTanks(){
     <div class="kpi"><div class="lbl">Total inflow</div><div class="val teal">${fmt(totalInflow)}<span class="unit">KLD</span></div></div>
     <div class="kpi"><div class="lbl">Total outflow</div><div class="val">${fmt(totalOutflow)}<span class="unit">KLD</span></div></div>
     <div class="kpi"><div class="lbl">Tanks below 30%</div><div class="val ${tanksBelow30>0?'red':'green'}">${tanksBelow30}</div></div>
+    <div class="kpi"><div class="lbl">Contamination risk (High/Med)</div><div class="val ${contamHigh>0?'red':contamMedium>0?'amber':'green'}">${contamHigh}<span class="unit">/ ${contamMedium}</span></div></div>
+    <div class="kpi"><div class="lbl">Maintenance overdue</div><div class="val ${maintOverdueTanks.length>0?'red':'green'}">${maintOverdueTanks.length}</div><div class="delta">${valveThrottled} valves throttled · ${scadaOfflineTanks} SCADA offline</div></div>
   </div>
   <div class="panel">
     <div class="toolbar">
@@ -672,6 +969,11 @@ function tankCards(){
   if(list.length===0) return `<div class="hint">No tanks match the current filters.</div>`;
   return list.map(t=>{
     const col = levelColor(t.level);
+    const contamCol = t.contam==='High'?'var(--red)':t.contam==='Medium'?'var(--amber)':'var(--green)';
+    const overdue = new Date(t.nextMaint) < TODAY;
+    const netCol = t.inflow>=t.outflow?'var(--green)':'var(--red)';
+    const contamBg = t.contam==='High'?'var(--red-bg)':t.contam==='Medium'?'var(--amber-bg)':'var(--green-bg)';
+    const contamFg = t.contam==='High'?'var(--red-fg)':t.contam==='Medium'?'var(--amber-fg)':'var(--green-fg)';
     return `<div class="tankcard">
       <div class="gaugewrap">
         <div class="gaugelabel">${t.level}%</div>
@@ -680,17 +982,26 @@ function tankCards(){
       <div class="tankinfo">
         <div class="tname">${t.name}</div>
         <div class="ttype">${t.id} · ${t.type} · ${zoneOf(t.zone).name}</div>
-        ${statusBadge(t.status)}
-        <div class="statrow" style="margin-top:10px;">
-          <div>Capacity <b>${fmt(t.cap)} KL</b></div>
-          <div>Pump <b>${t.pump}</b></div>
-          <div>Inflow <b>${fmt(t.inflow)} KLD</b></div>
-          <div>Outflow <b>${fmt(t.outflow)} KLD</b></div>
-          <div>Turbidity <b>${t.turbidity} NTU</b></div>
-          <div>pH <b>${t.ph}</b></div>
-          <div>Res. chlorine <b>${t.chlorine} mg/L</b></div>
-          <div>Net <b style="color:${t.inflow>=t.outflow?'var(--green)':'var(--red)'}">${t.inflow>=t.outflow?'+':''}${fmt(t.inflow-t.outflow)} KLD</b></div>
+        <div class="chiprow">
+          ${statusBadge(t.status)}
+          <span class="badge" style="background:${contamBg}; color:${contamFg};"><span class="bdot"></span>${t.contam} contamination risk</span>
+          ${t.scada==='Offline'?'<span class="badge b-critical"><span class="bdot"></span>SCADA offline</span>':''}
         </div>
+        ${specGrid([
+          spec('Capacity', fmt(t.cap), null, 'KL'),
+          spec('Pump', t.pump),
+          spec('Inflow', fmt(t.inflow), null, 'KLD'),
+          spec('Outflow', fmt(t.outflow), null, 'KLD'),
+          spec('Turbidity', t.turbidity, t.turbidity>TURB_NORM_MAX?'var(--amber)':null, 'NTU'),
+          spec('pH', t.ph),
+          spec('Res. chlorine', t.chlorine, t.chlorine<CL_NORM_MIN?'var(--red)':null, 'mg/L'),
+          spec('Water age', t.waterAge, t.waterAge>16?'var(--amber)':null, 'h'),
+          spec('Contamination risk', t.contam, contamCol),
+          spec('Valve', t.valve, t.valve==='Throttled'?'var(--amber)':null),
+          spec('SCADA link', t.scada, t.scada==='Offline'?'var(--red)':'var(--green)'),
+          spec('Next maintenance', t.nextMaint + (overdue?' ⚠':''), overdue?'var(--red)':null),
+          spec('Net flow', (t.inflow>=t.outflow?'+':'')+fmt(t.inflow-t.outflow), netCol, 'KLD', true),
+        ])}
       </div>
     </div>`;
   }).join('');
@@ -706,6 +1017,8 @@ function viewLines(){
     <div class="kpi"><div class="lbl">Trunk mains</div><div class="val">${LINES.filter(l=>l.type==='Trunk Main').length}</div></div>
     <div class="kpi"><div class="lbl">Distribution mains</div><div class="val">${LINES.filter(l=>l.type==='Distribution Main').length}</div></div>
     <div class="kpi"><div class="lbl">Flagged lines</div><div class="val red">${LINES.filter(l=>l.status!=='Normal').length}</div></div>
+    <div class="kpi"><div class="lbl">Avg roughness (C)</div><div class="val ${avgRoughness<120?'amber':'teal'}">${fmt(avgRoughness,0)}</div><div class="delta">${roughLines.length} pipes below C${ROUGHNESS_RISK_MAX}</div></div>
+    <div class="kpi"><div class="lbl">Pressure class</div><div class="val">PN16<span class="unit">× ${pn16Count}</span></div><div class="delta">PN10 × ${pn10Count} distribution mains</div></div>
   </div>
   <div class="panel">
     <div class="toolbar">
@@ -728,11 +1041,12 @@ function viewLines(){
     <table>
       <thead><tr>
         <th>Line ID</th><th>Zone</th><th>Type</th><th>From → To</th><th>Dia (mm)</th><th>Material</th><th>Length (km)</th>
-        <th>Input (KLD)</th><th>Output (KLD)</th><th>NRW %</th><th>P-in (mwc)</th><th>P-out (mwc)</th><th>Velocity (m/s)</th><th>Age (yr)</th><th>Status</th>
+        <th>Input (KLD)</th><th>Output (KLD)</th><th>NRW %</th><th>P-in (mwc)</th><th>P-out (mwc)</th><th>Rating (mwc)</th><th>Velocity (m/s)</th><th>Roughness (C)</th><th>Age (yr)</th><th>Status</th>
       </tr></thead>
       <tbody>${linesTableRows()}</tbody>
     </table>
     </div>
+    <div class="hint">Roughness = Hazen-Williams C (higher = smoother bore); values below C${ROUGHNESS_RISK_MAX} are highlighted as candidates for relining/replacement. Rating = pipe class working pressure — P-in is checked against it for headroom.</div>
   </div>`;
 }
 function linesFilteredList(){
@@ -740,16 +1054,21 @@ function linesFilteredList(){
 }
 function linesTableRows(){
   let list = linesFilteredList();
-  if(list.length===0) return `<tr><td colspan="15" class="hint" style="font-family:var(--sans);">No lines match the current filters.</td></tr>`;
+  if(list.length===0) return `<tr><td colspan="17" class="hint" style="font-family:var(--sans);">No lines match the current filters.</td></tr>`;
   return list.map(l=>{
     const nrw = l.output===null ? null : ((l.input-l.output)/l.input*100);
+    const pressureMargin = l.pressureRating - l.pin;
     return `<tr>
       <td class="name">${l.id}</td><td>${l.zone}</td><td>${l.type}</td>
       <td class="name">${l.from} → ${l.to}</td>
       <td>${l.dia}</td><td>${l.material}</td><td>${l.length}</td>
       <td>${fmt(l.input)}</td><td>${l.output===null?'—':fmt(l.output)}</td>
       <td style="color:${nrw===null?'var(--text-mute)':nrw>15?'var(--red)':nrw>8?'var(--amber)':'var(--green)'}">${nrw===null?'—':fmt(nrw,1)}</td>
-      <td>${l.pin}</td><td>${l.pout===null?'—':l.pout}</td><td>${l.vel===null?'—':l.vel}</td><td>${l.age}</td>
+      <td>${l.pin}</td><td>${l.pout===null?'—':l.pout}</td>
+      <td style="color:${pressureMargin<70?'var(--amber)':'var(--text-mute)'}">${l.pressureRating}</td>
+      <td>${l.vel===null?'—':l.vel}</td>
+      <td style="color:${l.roughness<ROUGHNESS_RISK_MAX?'var(--red)':'inherit'}">${l.roughness}</td>
+      <td style="color:${l.age>25?'var(--amber)':'inherit'}">${l.age}</td>
       <td>${statusBadge(l.status)}</td>
     </tr>`;
   }).join('');
@@ -806,14 +1125,16 @@ function viewAreas(){
     const zt = tanksIn(z.id);
     const alertCount = ALERTS.filter(a=>a.zone===z.id).length;
     const supplyHours = deficit>=0 ? (deficit>0.5 ? 5 : 4) : (deficit<-1 ? 2 : 3);
-    return {z, supplyMld, yesterdayMld, changePct, demandMld, lpcd, deficit, alertCount, supplyHours, tankCount:zt.length, lineCount:zl.length};
+    const peakMld = demandMld*z.peakFactor;
+    const peakDeficit = supplyMld-peakMld;
+    return {z, supplyMld, yesterdayMld, changePct, demandMld, lpcd, deficit, alertCount, supplyHours, tankCount:zt.length, lineCount:zl.length, peakMld, peakDeficit};
   });
   return `
   <div class="panel">
     <h2>Zone-wise service summary <span class="cnt">7 zones · ${fmt(totalPopulation)} population served · click a row for detail</span></h2>
     <div style="overflow-x:auto;">
     <table>
-      <thead><tr><th>Zone</th><th>Areas covered</th><th>Population</th><th>Supply today (MLD)</th><th>vs yesterday</th><th>Demand (MLD)</th><th>Deficit / surplus</th><th>Per-capita (LPCD)</th><th>Supply hrs/day</th><th>Alerts</th></tr></thead>
+      <thead><tr><th>Zone</th><th>Areas covered</th><th>Population</th><th>Supply today (MLD)</th><th>vs yesterday</th><th>Demand (MLD)</th><th>Deficit / surplus</th><th>Per-capita (LPCD)</th><th>Peak-hr demand (MLD)</th><th>Seasonal +%</th><th>Fire-flow (L/s)</th><th>Supply hrs/day</th><th>Alerts</th></tr></thead>
       <tbody>${rows.map(r=>{
         const isMaxSupply = r.z.id===maxSupplyZone.id, isMinSupply = r.z.id===minSupplyZone.id;
         const isMaxLpcd = r.z.id===maxLPCDZone.id, isMinLpcd = r.z.id===minLPCDZone.id;
@@ -827,12 +1148,16 @@ function viewAreas(){
           <td>${fmt(r.demandMld,1)}</td>
           <td style="color:${r.deficit>=0?'var(--green)':'var(--red)'}">${r.deficit>=0?'+':''}${fmt(r.deficit,1)}</td>
           <td style="color:${r.lpcd<100?'var(--red)':r.lpcd<135?'var(--amber)':'var(--green)'}">${r.lpcd} ${isMaxLpcd?'<span class="badge b-normal" style="margin-left:4px;">best</span>':''}${isMinLpcd?'<span class="badge b-critical" style="margin-left:4px;">worst</span>':''}</td>
+          <td style="color:${r.peakDeficit<0?'var(--red)':'inherit'}">${fmt(r.peakMld,1)} <span style="color:var(--text-mute); font-size:10.5px;">×${r.z.peakFactor}</span></td>
+          <td>+${r.z.seasonalVariationPct}%</td>
+          <td>${r.z.fireFlowLPS}</td>
           <td>${r.supplyHours}</td>
           <td style="color:${r.alertCount>0?'var(--red)':'var(--text-mute)'}">${r.alertCount}</td>
         </tr>`;
       }).join('')}</tbody>
     </table>
     </div>
+    <div class="hint">Peak-hour demand = average daily demand × zone hydraulic peaking factor; red flags a zone whose current supply would not cover its own peak hour. Seasonal +% is the summer-month uplift over annual average; fire-flow is the design reserve held on top of domestic demand.</div>
   </div>
   <div class="tanksgrid">
     ${rows.map(r=>`
@@ -846,6 +1171,8 @@ function viewAreas(){
           <div>Demand <b>${fmt(r.demandMld,1)} MLD</b></div>
           <div>LPCD <b>${r.lpcd}</b></div>
           <div>vs yesterday <b style="color:${r.changePct>=0?'var(--green)':'var(--red)'}">${r.changePct>=0?'+':''}${fmt(r.changePct,1)}%</b></div>
+          <div>Peak-hr <b style="color:${r.peakDeficit<0?'var(--red)':'inherit'}">${fmt(r.peakMld,1)} MLD</b></div>
+          <div>Fire-flow <b>${r.z.fireFlowLPS} L/s</b></div>
         </div>
       </div>`).join('')}
   </div>`;
@@ -860,14 +1187,43 @@ function viewMap(){
     <h2>Network map <span class="cnt">approximate layout, not surveyed GIS · click a zone or WTP marker</span></h2>
     <div class="svgwrap">${bigMapSVG()}</div>
     <div class="legend">
-      <span><i style="background:#2DD4BF"></i>Normal operation</span>
-      <span><i style="background:#F5A524"></i>Warning (low level / sensor fault)</span>
-      <span><i style="background:#F14747"></i>Critical (leak, blockage, low level)</span>
-      <span><i style="background:#38BDF8"></i>Water treatment plant</span>
-      <span><i style="background:#3B6D8C; border-radius:2px; width:14px; height:8px;"></i>Sabarmati river</span>
+      <span><i style="background:var(--teal)"></i>Normal operation</span>
+      <span><i style="background:var(--amber)"></i>Warning (low level / sensor fault)</span>
+      <span><i style="background:var(--red)"></i>Critical (leak, blockage, low level)</span>
+      <span><i style="background:var(--sky)"></i>Water treatment plant</span>
+      <span><i style="background:var(--river); border-radius:2px; width:14px; height:8px;"></i>Sabarmati river</span>
     </div>
     <div class="hint">Line thickness on trunk mains is scaled to pipe diameter. Thin spokes off each zone hub are distribution mains reaching individual areas. Click any zone circle or WTP box to open its detail in the side panel.</div>
   </div>
+
+  <div class="panel">
+    <h2>Water source &amp; supply <span class="cnt">${Object.keys(WTP_INFO).length} treatment plants · click a row</span></h2>
+    <div class="kpirow">
+      <div class="kpi"><div class="lbl">Source capacity</div><div class="val">${fmt(sourceCapacityTotalMLD,1)}<span class="unit">MLD</span></div></div>
+      <div class="kpi"><div class="lbl">Treatment-plant output</div><div class="val teal">${fmt(sourceOutputTotalMLD,1)}<span class="unit">MLD</span></div><div class="delta">${fmt(sourceUtilizationPct,1)}% of capacity utilised</div></div>
+      <div class="kpi"><div class="lbl">Reliability (avg)</div><div class="val ${avgReliabilityPct<97?'amber':'green'}">${fmt(avgReliabilityPct,1)}<span class="unit">%</span></div></div>
+      <div class="kpi"><div class="lbl">Reserve supply (min)</div><div class="val ${minReserveWTP.w.reserveHrs<6?'red':'green'}">${minReserveWTP.w.reserveHrs}<span class="unit">h</span></div><div class="delta">${minReserveWTP.name}</div></div>
+    </div>
+    <div style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>Plant</th><th>Capacity (MLD)</th><th>Output (MLD)</th><th>Utilisation</th><th>Reliability</th><th>Reserve supply</th><th>Trunk mains fed</th></tr></thead>
+      <tbody>${Object.entries(WTP_INFO).map(([name,w])=>{
+        const feedLines = LINES.filter(l=>l.type==='Trunk Main' && l.from===name);
+        const outputMLD = feedLines.reduce((s,l)=>s+l.input,0)/1000;
+        const util = outputMLD/w.capacityMLD*100;
+        return `<tr style="cursor:pointer;" onclick="highlightWtp('${name}')">
+          <td class="name">${name}</td><td>${fmt(w.capacityMLD,1)}</td><td>${fmt(outputMLD,1)}</td>
+          <td style="color:${util>90?'var(--amber)':'inherit'}">${fmt(util,1)}%</td>
+          <td style="color:${w.reliabilityPct<97?'var(--amber)':'var(--green)'}">${w.reliabilityPct}%</td>
+          <td style="color:${w.reserveHrs<6?'var(--red)':'inherit'}">${w.reserveHrs} h</td>
+          <td>${feedLines.length} (${feedLines.map(l=>l.to).join(', ')})</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    </div>
+    <div class="hint">Reliability = trailing-90-day uptime; reserve supply = clear-water reservoir carry-over at current output rate. Both feed the "Water source &amp; supply" card on the Overview tab.</div>
+  </div>
+
   <div class="grid2">
     <div class="panel">
       <h2>Trunk main routing</h2>
@@ -892,9 +1248,9 @@ function bigMapSVG(){
   let s = `<svg viewBox="0 0 780 660" width="100%" style="max-width:560px; display:block; margin:0 auto;" role="img" aria-label="Map of Ahmedabad water distribution zones, treatment plants and trunk mains around the Sabarmati river">`;
 
   // River (curved, highlighted)
-  s += `<path d="${RIVER_PATH}" fill="none" stroke="#3B6D8C" stroke-width="16" opacity="0.55" stroke-linecap="round"/>`;
-  s += `<path d="${RIVER_PATH}" fill="none" stroke="#5B9BC4" stroke-width="3" opacity="0.7" stroke-linecap="round"/>`;
-  s += `<text x="440" y="45" font-family="IBM Plex Mono" font-size="11" fill="#6F93B0">Sabarmati river</text>`;
+  s += `<path d="${RIVER_PATH}" fill="none" stroke="var(--river)" stroke-width="16" opacity="0.55" stroke-linecap="round"/>`;
+  s += `<path d="${RIVER_PATH}" fill="none" stroke="var(--river-core)" stroke-width="3" opacity="0.7" stroke-linecap="round"/>`;
+  s += `<text x="440" y="45" font-family="IBM Plex Mono" font-size="11" fill="var(--river-label)">Sabarmati river</text>`;
 
   // Trunk mains: WTP -> zone hub, thickness scaled to diameter
   zoneList.forEach(zid=>{
@@ -902,7 +1258,7 @@ function bigMapSVG(){
     linesIn(zid).filter(l=>l.type==='Trunk Main').forEach(l=>{
       const wtp = WTP_POS[l.from];
       if(!wtp) return;
-      const col = l.status==='Leakage Suspected'||l.status==='Blockage Suspected' ? '#F14747' : l.status==='Sensor Offline' ? '#A78BFA' : '#2DD4BF';
+      const col = l.status==='Leakage Suspected'||l.status==='Blockage Suspected' ? 'var(--red)' : l.status==='Sensor Offline' ? 'var(--purple)' : 'var(--teal)';
       const w = Math.max(2, l.dia/140);
       const midx = (wtp.x+zp.x)/2 + (zp.x>wtp.x?-20:20);
       const midy = (wtp.y+zp.y)/2;
@@ -920,21 +1276,21 @@ function bigMapSVG(){
       const len = 58;
       const ex = zp.x + Math.cos(rad)*len;
       const ey = zp.y + Math.sin(rad)*len;
-      const col = l.status==='Leakage Suspected'||l.status==='Blockage Suspected' ? '#F14747' : '#3D5972';
+      const col = l.status==='Leakage Suspected'||l.status==='Blockage Suspected' ? 'var(--red)' : 'var(--wire)';
       s += `<line x1="${zp.x}" y1="${zp.y}" x2="${ex}" y2="${ey}" stroke="${col}" stroke-width="2" opacity="0.85"/>`;
       s += `<circle cx="${ex}" cy="${ey}" r="3" fill="${col}"/>`;
       const lblX = zp.x + Math.cos(rad)*(len+8);
       const lblY = zp.y + Math.sin(rad)*(len+8);
       const anchor = Math.cos(rad) > 0.3 ? 'start' : Math.cos(rad) < -0.3 ? 'end' : 'middle';
-      s += `<text x="${lblX}" y="${lblY}" text-anchor="${anchor}" font-family="IBM Plex Mono" font-size="9" fill="#5A7089">${l.to.split('/')[0].trim().slice(0,16)}</text>`;
+      s += `<text x="${lblX}" y="${lblY}" text-anchor="${anchor}" font-family="IBM Plex Mono" font-size="9" fill="var(--text-mute)">${l.to.split('/')[0].trim().slice(0,16)}</text>`;
     });
   });
 
   // WTP nodes
   Object.entries(WTP_POS).forEach(([name,p])=>{
     s += `<g style="cursor:pointer" onclick="highlightWtp('${name}')">
-      <rect x="${p.x-56}" y="${p.y-18}" width="112" height="36" rx="6" fill="#0F1E2E" stroke="#38BDF8" stroke-width="1.4"/>
-      <text x="${p.x}" y="${p.y+5}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="#DCE7F2">${name}</text>
+      <rect x="${p.x-56}" y="${p.y-18}" width="112" height="36" rx="6" fill="var(--panel)" stroke="var(--sky)" stroke-width="1.4"/>
+      <text x="${p.x}" y="${p.y+5}" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--text)">${name}</text>
     </g>`;
   });
 
@@ -943,18 +1299,18 @@ function bigMapSVG(){
     const zp = ZONEPOS_MAP[zid];
     const z = zoneOf(zid);
     const st = worstStatusForZone(zid);
-    const col = st==='critical'?'#F14747':st==='warning'?'#F5A524':'#2DD4BF';
+    const col = st==='critical'?'var(--red)':st==='warning'?'var(--amber)':'var(--teal)';
     const zTanks = tanksIn(zid);
     const avgLvl = Math.round(zTanks.reduce((s,t)=>s+t.level,0)/zTanks.length);
     const isSel = selectedZoneId===zid;
     s += `<g style="cursor:pointer" onclick="openZoneDrawer('${zid}')">`;
-    s += `<circle cx="${zp.x}" cy="${zp.y}" r="40" fill="#13253A" stroke="${col}" stroke-width="${isSel?3.5:2}"/>`;
+    s += `<circle cx="${zp.x}" cy="${zp.y}" r="40" fill="var(--panel2)" stroke="${col}" stroke-width="${isSel?3.5:2}"/>`;
     if(isSel) s += `<circle cx="${zp.x}" cy="${zp.y}" r="46" fill="none" stroke="${col}" stroke-width="1" opacity="0.5"/>`;
-    s += `<text x="${zp.x}" y="${zp.y-8}" text-anchor="middle" font-family="IBM Plex Sans" font-weight="600" font-size="12" fill="#DCE7F2">${zid}</text>`;
+    s += `<text x="${zp.x}" y="${zp.y-8}" text-anchor="middle" font-family="IBM Plex Sans" font-weight="600" font-size="12" fill="var(--text)">${zid}</text>`;
     s += `<text x="${zp.x}" y="${zp.y+9}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="${col}">${avgLvl}%</text>`;
-    s += `<text x="${zp.x}" y="${zp.y+24}" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#8AA0B8">${zTanks.length}T · ${linesIn(zid).length}L</text>`;
+    s += `<text x="${zp.x}" y="${zp.y+24}" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="var(--text-dim)">${zTanks.length}T · ${linesIn(zid).length}L</text>`;
     s += `</g>`;
-    s += `<text x="${zp.x}" y="${zp.y+64}" text-anchor="middle" font-family="IBM Plex Sans" font-size="10" fill="#8AA0B8">${z.name}</text>`;
+    s += `<text x="${zp.x}" y="${zp.y+64}" text-anchor="middle" font-family="IBM Plex Sans" font-size="10" fill="var(--text-dim)">${z.name}</text>`;
   });
 
   s += `</svg>`;
@@ -991,16 +1347,31 @@ function viewReports(){
       <button class="btn" onclick="exportCSV('lines')">Download line parameters (CSV)</button>
       <button class="btn" onclick="exportCSV('areas')">Download area-wise report (CSV)</button>
       <button class="btn" onclick="exportCSV('alerts')">Download alerts log (CSV)</button>
+      <button class="btn" onclick="exportCSV('economics')">Download economics summary (CSV)</button>
       <button class="btn" onclick="window.print()">Print / save as PDF</button>
     </div>
   </div>
+
+  <div class="panel">
+    <h2>Economics &amp; sustainability <span class="cnt">city-wide, indicative planning figures</span></h2>
+    <div class="kpirow">
+      <div class="kpi"><div class="lbl">Capital cost (asset value)</div><div class="val">₹${fmt(ECONOMICS.capitalAssetValueCr)}<span class="unit">Cr</span></div></div>
+      <div class="kpi"><div class="lbl">Operating cost</div><div class="val">₹${fmt(ECONOMICS.annualOpexCr)}<span class="unit">Cr/yr</span></div><div class="delta">₹${fmt(costPerKL,2)} per KL delivered</div></div>
+      <div class="kpi"><div class="lbl">Energy use</div><div class="val">${fmt(totalEnergyMWhPerDay,1)}<span class="unit">MWh/day</span></div><div class="delta">${ECONOMICS.energyKwhPerML} kWh per ML pumped</div></div>
+      <div class="kpi"><div class="lbl">Lifecycle replacement due</div><div class="val ${assetsDueReplacementPct>15?'amber':'green'}">${fmt(assetsDueReplacementPct,1)}<span class="unit">%</span></div><div class="delta">${roughLines.length} of ${LINES.length} lines (C&lt;${ROUGHNESS_RISK_MAX})</div></div>
+      <div class="kpi"><div class="lbl">Equity of access</div><div class="val ${equityIndexPct<70?'red':equityIndexPct<85?'amber':'green'}">${fmt(equityIndexPct,0)}<span class="unit">%</span></div><div class="delta">${minLPCDZone.name} vs ${maxLPCDZone.name} LPCD ratio</div></div>
+    </div>
+    <div class="hint">Capital and operating costs are indicative planning-level figures for a network of this size; energy use, lifecycle replacement share and the equity index are derived live from today's operating data above.</div>
+  </div>
+
   <div class="panel">
     <h2>Report contents</h2>
     <div class="hint">
-      <b style="color:var(--text)">Tank levels CSV</b> — tank ID, zone, type, capacity, level %, inflow/outflow KLD, water quality (turbidity, pH, residual chlorine), status.<br><br>
-      <b style="color:var(--text)">Line parameters CSV</b> — line ID, zone, type, route, diameter, material, length, input/output flow, NRW%, pressure in/out, velocity, age, status.<br><br>
-      <b style="color:var(--text)">Area-wise CSV</b> — zone, areas covered, population, supply/demand MLD, per-capita LPCD, supply hours, deficit.<br><br>
-      <b style="color:var(--text)">Alerts log CSV</b> — alert type, severity, line/tank ID, zone, location, parameter reading, detection method, estimated loss, recommended action.
+      <b style="color:var(--text)">Tank levels CSV</b> — tank ID, zone, type, capacity, level %, inflow/outflow KLD, water quality (turbidity, pH, residual chlorine, water age, contamination risk), valve, SCADA link, maintenance dates, status.<br><br>
+      <b style="color:var(--text)">Line parameters CSV</b> — line ID, zone, type, route, diameter, material, length, input/output flow, NRW%, pressure in/out/rating, velocity, roughness (C), age, status.<br><br>
+      <b style="color:var(--text)">Area-wise CSV</b> — zone, areas covered, population, supply/demand MLD, per-capita LPCD, peak-hour demand, seasonal variation, fire-flow demand, supply hours, deficit.<br><br>
+      <b style="color:var(--text)">Alerts log CSV</b> — alert type, severity, line/tank ID, zone, location, parameter reading, detection method, estimated loss, recommended action.<br><br>
+      <b style="color:var(--text)">Economics summary CSV</b> — capital cost, operating cost, cost per KL, energy use, lifecycle replacement %, equity of access, plus per-WTP source capacity/output/reliability/reserve.
     </div>
   </div>`;
 }
@@ -1009,29 +1380,45 @@ function exportCSV(kind){
   let rows = [], filename = '';
   if(kind==='tanks'){
     filename = 'amc_tank_levels.csv';
-    rows.push(['Tank ID','Name','Type','Zone','Capacity (KL)','Level %','Inflow (KLD)','Outflow (KLD)','Turbidity (NTU)','pH','Res. Chlorine (mg/L)','Pump','Status']);
-    TANKS.forEach(t=>rows.push([t.id,t.name,t.type,zoneOf(t.zone).name,t.cap,t.level,t.inflow,t.outflow,t.turbidity,t.ph,t.chlorine,t.pump,t.status]));
+    rows.push(['Tank ID','Name','Type','Zone','Capacity (KL)','Level %','Inflow (KLD)','Outflow (KLD)','Turbidity (NTU)','pH','Res. Chlorine (mg/L)','Water Age (h)','Contamination Risk','Valve','SCADA Link','Last Maint.','Next Maint.','Pump','Status']);
+    TANKS.forEach(t=>rows.push([t.id,t.name,t.type,zoneOf(t.zone).name,t.cap,t.level,t.inflow,t.outflow,t.turbidity,t.ph,t.chlorine,t.waterAge,t.contam,t.valve,t.scada,t.lastMaint,t.nextMaint,t.pump,t.status]));
   } else if(kind==='lines'){
     filename = 'amc_distribution_lines.csv';
-    rows.push(['Line ID','Zone','Type','From','To','Diameter (mm)','Material','Length (km)','Input (KLD)','Output (KLD)','NRW %','Pressure In (mwc)','Pressure Out (mwc)','Velocity (m/s)','Age (yr)','Status']);
+    rows.push(['Line ID','Zone','Type','From','To','Diameter (mm)','Material','Length (km)','Input (KLD)','Output (KLD)','NRW %','Pressure In (mwc)','Pressure Out (mwc)','Pressure Rating (mwc)','Velocity (m/s)','Roughness (C)','Age (yr)','Status']);
     LINES.forEach(l=>{
       const nrw = l.output===null?'':((l.input-l.output)/l.input*100).toFixed(1);
-      rows.push([l.id,l.zone,l.type,l.from,l.to,l.dia,l.material,l.length,l.input,l.output===null?'':l.output,nrw,l.pin,l.pout===null?'':l.pout,l.vel===null?'':l.vel,l.age,l.status]);
+      rows.push([l.id,l.zone,l.type,l.from,l.to,l.dia,l.material,l.length,l.input,l.output===null?'':l.output,nrw,l.pin,l.pout===null?'':l.pout,l.pressureRating,l.vel===null?'':l.vel,l.roughness,l.age,l.status]);
     });
   } else if(kind==='areas'){
     filename = 'amc_area_wise_supply.csv';
-    rows.push(['Zone','Areas','Population','Supply (MLD)','Demand (MLD)','Per-capita (LPCD)','Supply hrs/day']);
+    rows.push(['Zone','Areas','Population','Supply (MLD)','Demand (MLD)','Per-capita (LPCD)','Peak-Hour Demand (MLD)','Peak Factor','Seasonal Variation (%)','Fire-Flow Demand (L/s)','Supply hrs/day']);
     ZONES.forEach(z=>{
       const zt = tanksIn(z.id);
       const supplyMld = zt.reduce((s,t)=>s+t.outflow,0)/1000;
       const demandMld = z.population*135/1e6;
       const lpcd = Math.round(supplyMld*1e6/z.population);
-      rows.push([z.name, z.areas.join(' | '), z.population, supplyMld.toFixed(1), demandMld.toFixed(1), lpcd, supplyMld>=demandMld?5:3]);
+      rows.push([z.name, z.areas.join(' | '), z.population, supplyMld.toFixed(1), demandMld.toFixed(1), lpcd, (demandMld*z.peakFactor).toFixed(1), z.peakFactor, z.seasonalVariationPct, z.fireFlowLPS, supplyMld>=demandMld?5:3]);
     });
   } else if(kind==='alerts'){
     filename = 'amc_alerts_log.csv';
     rows.push(['Type','Severity','ID','Zone','Location','Parameter','Method','Est. Loss (KLD)','Action']);
     ALERTS.forEach(a=>rows.push([a.type,a.sev,a.line,zoneOf(a.zone).name,a.location,a.param,a.method,a.loss||'',a.action]));
+  } else if(kind==='economics'){
+    filename = 'amc_economics_sustainability.csv';
+    rows.push(['Metric','Value','Unit']);
+    rows.push(['Capital asset value', ECONOMICS.capitalAssetValueCr, 'Cr INR']);
+    rows.push(['Annual operating cost', ECONOMICS.annualOpexCr, 'Cr INR/yr']);
+    rows.push(['Cost per KL delivered', costPerKL.toFixed(2), 'INR/KL']);
+    rows.push(['Energy use', totalEnergyMWhPerDay.toFixed(1), 'MWh/day']);
+    rows.push(['Energy intensity', ECONOMICS.energyKwhPerML, 'kWh/ML']);
+    rows.push(['Lifecycle replacement due', assetsDueReplacementPct.toFixed(1), '% of network']);
+    rows.push(['Equity of access index', equityIndexPct.toFixed(0), '% (min/max zone LPCD)']);
+    rows.push([]);
+    rows.push(['WTP','Capacity (MLD)','Output (MLD)','Reliability (%)','Reserve Supply (h)']);
+    Object.entries(WTP_INFO).forEach(([name,w])=>{
+      const outputMLD = LINES.filter(l=>l.type==='Trunk Main'&&l.from===name).reduce((s,l)=>s+l.input,0)/1000;
+      rows.push([name, w.capacityMLD, outputMLD.toFixed(1), w.reliabilityPct, w.reserveHrs]);
+    });
   }
   const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
@@ -1054,6 +1441,23 @@ function tickClock(){
 }
 setInterval(tickClock, 1000);
 tickClock();
+
+/* Theme toggle — light is the default; the choice is remembered per browser via localStorage. */
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const icon = document.getElementById('themeIcon');
+  const label = document.getElementById('themeLabel');
+  if(icon) icon.textContent = theme==='dark' ? '☾' : '☀';
+  if(label) label.textContent = theme==='dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme')==='dark' ? 'dark' : 'light';
+  const next = current==='dark' ? 'light' : 'dark';
+  try{ localStorage.setItem('jalsetu-theme', next); }catch(e){}
+  applyTheme(next);
+}
+applyTheme(document.documentElement.getAttribute('data-theme')==='dark' ? 'dark' : 'light');
+
 renderNav();
 renderView();
 </script>
